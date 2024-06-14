@@ -8,6 +8,7 @@ body {
   font-family: Arial, sans-serif;
   height: 100vh;
   overflow: hidden;
+  border: 1px solid black;
 }
 
 header, footer {
@@ -16,12 +17,18 @@ header, footer {
   padding: 1rem;
 }
 
-main {
+div{
+  margin: 2%;
+  background-color: green;
+}
+
+/*main {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
+  background-color: green;
 }
 
 #gameContainer {
@@ -29,4 +36,4 @@ main {
   height: 720px;
   border: 1px solid black;
   background-color: rgb(6, 174, 6);
-}
+}*/
