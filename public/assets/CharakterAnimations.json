@@ -1,0 +1,41 @@
+{
+	"textures": [
+		{
+			"image": "CharakterAnimations.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 900,
+				"h": 700
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "Soldier.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 900,
+						"h": 700
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 900,
+						"h": 700
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 900,
+						"h": 700
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:ac41d1b63137e63a433de9790887a4db:9b297a66aea1669ddd47ac8f70e5bd44:5d3b491424d345aba866d8d9011fd096$"
+	}
+}
