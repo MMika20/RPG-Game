@@ -3,6 +3,7 @@ class GameScene extends Phaser.Scene {
         super({ key: 'GameScene'})
         let cursors;
         let charakter;
+        let enemy;
     }
     
     
@@ -11,6 +12,7 @@ class GameScene extends Phaser.Scene {
     this.load.image('tiles', './assets/RPG.png');
     this.load.tilemapTiledJSON('map1', './assets/RPG.json');
     this.load.atlas('charakter', './assets/CharakterAnimations.png', './assets/CharakterAnimations.json')
+    this.load.atlas('enemy', './assets/EnemyAnimations.png', './assets/EnemyAnimations.json')
 }
 
  create() {
@@ -35,15 +37,23 @@ class GameScene extends Phaser.Scene {
     // Charakter Einstellungen
     this.charakter = this.physics.add.sprite(128, 158, 'charakter', 'Idle01.png')
     this.charakter.body.setSize(this.charakter.width * 0.12, this.charakter.height * 0.16)
-    this.charakter.anims.play('charakter-Idle')
     this.physics.add.collider(this.charakter, objectLayer)
     this.charakter.setCollideWorldBounds(true);
+
+    // Gegner Einstellungen
+    this.enemy = this.physics.add.sprite(128, 300, 'enemy', 'idle1.png')
+    this.enemy.body.setSize(this.enemy.width * 0.12, this.enemy.height * 0.16)
+    this.physics.add.collider(this.enemy, objectLayer)
+    /*const orcs = this.physics.add.group({
+        classType: Orc
+    })
+    orcs.get(128, 256, 'orc')*/
 
     // Kamera-Einstellungen
     this.cameras.main.startFollow(this.charakter);
     this.cameras.main.setZoom(3);  // Zoom-Faktor einstellen
 
-    // Animationen erstellen
+    // Animationen für Charakter erstellen
     this.anims.create({
         key: 'charakter-Idle',
         frames: this.anims.generateFrameNames('charakter', {start: 1, end: 6, prefix: 'Idle0', suffix: '.png'}),
@@ -58,6 +68,20 @@ class GameScene extends Phaser.Scene {
         frameRate: 8
     })
 
+    // Animationen für Enemy erstellen
+    this.anims.create({
+        key: 'enemy-idle',
+        frames: this.anims.generateFrameNames('enemy', {start: 1, end: 6, prefix: 'idle', suffix: '.png'}),
+        repeat: -1,
+        frameRate: 5
+    })
+
+    this.anims.create({
+        key: 'enemy-walk',
+        frames: this.anims.generateFrameNames('enemy', {start: 1, end: 9, prefix: 'walk', suffix: '.png'}),
+        repeat: -1,
+        frameRate: 9
+    })
 }
 
  update() {
@@ -66,7 +90,7 @@ class GameScene extends Phaser.Scene {
     // Charakter Geschwindigkeit
     const speed = 100;
 
-    // Tasten und Animationen zuweisen
+    // Tasten und Animationen zuweisen für Charakter
     if (this.cursors.left?.isDown) {
         this.charakter.anims.play('charakter-walk', true)
         this.charakter.setVelocity(-speed, 0);   // links
@@ -95,5 +119,9 @@ class GameScene extends Phaser.Scene {
         this.charakter.anims.play('charakter-Idle', true)
         this.charakter.setVelocity(0,0) // idle
     }
+
+    // Animationen für Enemy
+
+    this.enemy.anims.play('enemy-idle', true)
 }
 }

@@ -9,6 +9,8 @@ body {
   height: 100vh;
   overflow: hidden;
   border: 1px solid black;
+  padding: 10rem;
+
 }
 
 header, footer {
