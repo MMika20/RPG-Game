@@ -1,18 +1,16 @@
 class GameScene extends Phaser.Scene {
     constructor(){
         super({ key: 'GameScene'})
-        let player;
         let cursors;
-        let walls;
+        let charakter;
     }
-
+    
     
 
  preload() {
-    this.load.image('player', './assets/Player.png');
-    this.load.image('wall', './assets/wall.png');
     this.load.image('tiles', './assets/RPG.png');
     this.load.tilemapTiledJSON('map1', './assets/RPG.json');
+    this.load.atlas('charakter', './assets/CharakterAnimations.png', './assets/CharakterAnimations.json')
 }
 
  create() {
@@ -21,39 +19,81 @@ class GameScene extends Phaser.Scene {
   map.createLayer("Ground",tileset,0,0)
   const objectLayer = map.createLayer("Objects", tileset, 0, 0);
   
+    // Kollision erlauben
   objectLayer.setCollisionByProperty({collides : true})
   
+    // Objekte anzeigen lassen
   /*const debugGraphics = this.add.graphics().setAlpha(0.7)
   objectLayer.renderDebug(debugGraphics, {
     tileColor: null,
     collidingTileColor: new Phaser.Display.Color(243, 234, 48, 255),
     faceColor: new Phaser.Display.Color(40, 39, 37, 255)
   })*/
-
+    // Initialisierung der Tasten
     this.cursors = this.input.keyboard.createCursorKeys();
-    this.player = this.physics.add.sprite(100, 150, 'player');
-    this.player.setCollideWorldBounds(true);
-    this.physics.add.collider(this.player, objectLayer)
-    
+
+    // Charakter Einstellungen
+    this.charakter = this.physics.add.sprite(128, 158, 'charakter', 'Idle01.png')
+    this.charakter.body.setSize(this.charakter.width * 0.12, this.charakter.height * 0.16)
+    this.charakter.anims.play('charakter-Idle')
+    this.physics.add.collider(this.charakter, objectLayer)
+    this.charakter.setCollideWorldBounds(true);
+
     // Kamera-Einstellungen
-    this.cameras.main.startFollow(this.player);
+    this.cameras.main.startFollow(this.charakter);
     this.cameras.main.setZoom(3);  // Zoom-Faktor einstellen
+
+    // Animationen erstellen
+    this.anims.create({
+        key: 'charakter-Idle',
+        frames: this.anims.generateFrameNames('charakter', {start: 1, end: 6, prefix: 'Idle0', suffix: '.png'}),
+        repeat: -1,
+        frameRate: 5
+    })
+
+    this.anims.create({
+        key: 'charakter-walk',
+        frames: this.anims.generateFrameNames('charakter', {start: 1, end: 8, prefix: 'walk0', suffix: '.png'}),
+        repeat: -1,
+        frameRate: 8
+    })
 
 }
 
  update() {
-    this.player.setVelocity(0);
+    this.charakter.setVelocity(0);
 
-    if (this.cursors.left.isDown) {
-        this.player.setVelocityX(-80);
-    } else if (this.cursors.right.isDown) {
-        this.player.setVelocityX(80);
+    // Charakter Geschwindigkeit
+    const speed = 100;
+
+    // Tasten und Animationen zuweisen
+    if (this.cursors.left?.isDown) {
+        this.charakter.anims.play('charakter-walk', true)
+        this.charakter.setVelocity(-speed, 0);   // links
+        this.charakter.scaleX = -1
+        this.charakter.body.offset.x = 56;
     }
-
-    if (this.cursors.up.isDown) {
-        this.player.setVelocityY(-80);
-    } else if (this.cursors.down.isDown) {
-        this.player.setVelocityY(80);
+    else if (this.cursors.right?.isDown) 
+    {
+        this.charakter.anims.play('charakter-walk', true)
+        this.charakter.setVelocity(speed, 0);    // rechts
+        this.charakter.scaleX = 1
+        this.charakter.body.offset.x = 44;
+    }
+    else if (this.cursors.up?.isDown) {
+        this.charakter.anims.play('charakter-walk', true)
+        this.charakter.setVelocity(0, -speed);   // unten
+    } 
+    else if (this.cursors.down?.isDown) 
+    {
+        this.charakter.anims.play('charakter-walk', true)
+        this.charakter.setVelocity(0, speed);    // oben
+    } 
+    
+    else
+    {
+        this.charakter.anims.play('charakter-Idle', true)
+        this.charakter.setVelocity(0,0) // idle
     }
 }
 }
