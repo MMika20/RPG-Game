@@ -1,6 +1,6 @@
 function createCharakterAnims(anims) {
     anims.create({
-        key: 'charakter-Idle',
+        key: 'charakter-idle',
         frames: anims.generateFrameNames('charakter', { start: 1, end: 6, prefix: 'Idle0', suffix: '.png' }),
         repeat: -1,
         frameRate: 5

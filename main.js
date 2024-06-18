@@ -3,13 +3,14 @@ import GameScene from './GameScene.js';
 
 const config = {
     type: Phaser.AUTO,
-    width: 1280,
+    width: 1020,
     height: 720,
     backgroundColor: '#2d2d2d',
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true
+            // Hitbox anzeigen lassen von Charaktern
+            debug: false
         }
     },
     scene: [StartScene, GameScene]
