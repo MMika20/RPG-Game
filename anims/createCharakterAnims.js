@@ -12,6 +12,13 @@ function createCharakterAnims(anims) {
         repeat: -1,
         frameRate: 8
     });
+
+    anims.create({
+        key: 'charakter-death',
+        frames: anims.generateFrameNames('charakter', { start: 1, end: 4, prefix: 'death0', suffix: '.png' }),
+        repeat: 0,
+        frameRate: 5
+    })
 }
 
 export default createCharakterAnims;

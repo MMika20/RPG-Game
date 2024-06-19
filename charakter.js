@@ -12,38 +12,54 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         this.cursors = scene.input.keyboard.createCursorKeys();
 
-        this.HealthState = {
+        this.healthStates = {
             IDLE: 'IDLE',
-            DAMAGE: 'DAMAGE'
+            DAMAGE: 'DAMAGE',
+            DEAD: 'DEAD'
         };
  
-        this.HealthState = HealthState.IDLE;
+        this.healthState = this.healthStates.IDLE;
         this.damageTime = 0;
+
+        this._health = 3;
+    }
+
+        get health(){
+            return this._health;
+    
     }
 
     handleDamage(dir) {
-        if (this.HealthState === HealthState.DAMAGE) {
+        if (this._health <= 0 || this.healthState === this.healthStates.DEAD) {
             return;
         }
-        this.setVelocity(dir.x, dir.y);
-
-        this.setTint(0xff0000);
-
-        this.HealthState = this.HealthState.DAMAGE;
-        this.damageTime = 0;
+    
+        --this._health;
+    
+        if (this._health <= 0) {
+            this.healthState = this.healthStates.DEAD;
+            this.anims.play('charakter-death');
+            this.setVelocity(0, 0)
+        
+        } else {
+            this.setVelocity(dir.x, dir.y);
+            this.setTint(0xff0000);
+            this.healthState = this.healthStates.DAMAGE;
+            this.damageTime = 0;
+        }
     }
-
+    
     preUpdate(t, delta) {
         super.preUpdate(t, delta);
 
         switch (this.healthState) {
-            case this.HealthState.IDLE:
+            case this.healthStates.IDLE:
                 break;
 
-            case HealthState.DAMAGE:
+            case this.healthStates.DAMAGE:
                 this.damageTime += delta;
                 if (this.damageTime >= 250) {
-                    this.healthState = this.HealthState.IDLE;
+                    this.healthState = this.healthStates.IDLE;
                     this.setTint(0xffffff);
                     this.damageTime = 0;
                 }
@@ -52,7 +68,11 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        if (this.healthState === this.HealthState.DAMAGE){
+
+        if (this.healthState === this.healthStates.DAMAGE || this.healthState === this.healthStates.DEAD) {
+            return;
+        }
+        if (!this.cursors){
             return
         }
 

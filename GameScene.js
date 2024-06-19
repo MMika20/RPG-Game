@@ -1,7 +1,8 @@
 import createOrcAnims from './anims/createOrcAnims.js';
 import createCharakterAnims from './anims/createCharakterAnims.js';
 import Orc from './Orc.js';
-import Charakter from './charakter.js';
+import Charakter from './Charakter.js';
+import sceneEvents from './events/EventsCenter.js';
 
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -9,7 +10,7 @@ class GameScene extends Phaser.Scene {
         this.cursors = null;
         this.charakter = this.Charakter;
         this.orcs = null;
-        this.hit = 0;
+        this.playerOrcCollider;
     }
 
     preload() {
@@ -17,9 +18,12 @@ class GameScene extends Phaser.Scene {
         this.load.tilemapTiledJSON('map1', './assets/RPG.json');
         this.load.atlas('charakter', './assets/CharakterAnimations.png', './assets/CharakterAnimations.json');
         this.load.atlas('enemy', './assets/EnemyAnimations.png', './assets/EnemyAnimations.json');
+        this.load.image('heart_full', './ui/heart_full.png');
+        this.load.image('heart_empty', './ui/heart_empty.png');
     }
 
     create() {
+        this.scene.run('GameUI')
         // Map erstellen
         const map = this.make.tilemap({ key: "map1", tileWidth: 64, tileHeight: 45 });
         const tileset = map.addTilesetImage("RPG", "tiles");
@@ -59,9 +63,9 @@ class GameScene extends Phaser.Scene {
             orc.play('enemy-walk');
         });
 
-        this.physics.add.collider(this.orcs, this.charakter, this.handlePlayerOrcCollision, undefined, this);
+        this.playerOrcCollider = this.physics.add.collider(this.orcs, this.charakter, this.handlePlayerOrcCollision, undefined, this);
     }
-
+    
     // Kollision zwischen Charakter und Orc
     handlePlayerOrcCollision(charakter, orc) {
 
@@ -70,24 +74,22 @@ class GameScene extends Phaser.Scene {
 
         const dir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
 
-        //this.charakter.setVelocity(dir.x, dir.y)
-        //this.hit = 1;
         charakter.handleDamage(dir);
+
+        sceneEvents.emit('player-health-changed', this.charakter.health)
+
+        if (this.charakter.health <= 0){
+            this.playerOrcCollider?.destroy();
+        }
     }
         
     
-    update() {
-        // Hit Knockback
-        if (this.hit > 0) {
-            ++this.hit;
-            if (this.hit > 10) {
-                this.hit = 0;
-            }
-            return;
-        }
+    update(t, delta) {
 
         // Charakter.js aufgerufen für die Steuerung des Charakters
+        if (this.charakter){
         this.charakter.update(this.cursors);
+        }
 
         this.orcs.getChildren().forEach(orc => {
             if (orc.idle) {
