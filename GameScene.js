@@ -8,9 +8,10 @@ class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
         this.cursors = null;
-        this.charakter = this.Charakter;
+        this.charakter = null;
         this.orcs = null;
-        this.playerOrcCollider;
+        this.playerOrcCollider = null;
+        this.arrow = null;
     }
 
     preload() {
@@ -20,10 +21,11 @@ class GameScene extends Phaser.Scene {
         this.load.atlas('enemy', './assets/EnemyAnimations.png', './assets/EnemyAnimations.json');
         this.load.image('heart_full', './ui/heart_full.png');
         this.load.image('heart_empty', './ui/heart_empty.png');
+        this.load.image('arrow', './assets/arrow.png');
     }
 
     create() {
-        this.scene.run('GameUI')
+        this.scene.run('GameUI');
         // Map erstellen
         const map = this.make.tilemap({ key: "map1", tileWidth: 64, tileHeight: 45 });
         const tileset = map.addTilesetImage("RPG", "tiles");
@@ -38,9 +40,15 @@ class GameScene extends Phaser.Scene {
         this.physics.add.existing(this.charakter);
         this.charakter.setCollideWorldBounds(true);
 
+        // Arrow
+        this.arrow = this.physics.add.group();
+        this.charakter.setArrow(this.arrow);
+
         // Collision aktivieren
         objectLayer.setCollisionByProperty({ collides: true });
         this.physics.add.collider(this.charakter, objectLayer);
+        this.physics.add.collider(this.arrow, objectLayer);
+        this.physics.add.collider(this.arrow, this.orcs, this.handleArrowOrcCollision, undefined, this);
 
         // Enemy kreieren (Orc)
         this.orcs = this.physics.add.group({
@@ -54,7 +62,7 @@ class GameScene extends Phaser.Scene {
         this.cameras.main.startFollow(this.charakter);
         this.cameras.main.setZoom(3);
 
-        // Animation zugewiesen
+        // Animationen zuweisen
         createCharakterAnims(this.anims);
         createOrcAnims(this.anims);
 
@@ -65,30 +73,28 @@ class GameScene extends Phaser.Scene {
 
         this.playerOrcCollider = this.physics.add.collider(this.orcs, this.charakter, this.handlePlayerOrcCollision, undefined, this);
     }
-    
-    // Kollision zwischen Charakter und Orc
-    handlePlayerOrcCollision(charakter, orc) {
 
+    handleArrowOrcCollision(arrow, orc) {
+        // Hier sollte die Logik für den Pfeil-Ork-Kollision eingefügt werden
+    }
+
+    handlePlayerOrcCollision(charakter, orc) {
         const dx = this.charakter.x - orc.x;
         const dy = this.charakter.y - orc.y;
-
         const dir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
 
         charakter.handleDamage(dir);
+        sceneEvents.emit('player-health-changed', this.charakter.health);
 
-        sceneEvents.emit('player-health-changed', this.charakter.health)
-
-        if (this.charakter.health <= 0){
+        if (this.charakter.health <= 0) {
             this.playerOrcCollider?.destroy();
         }
     }
-        
-    
-    update(t, delta) {
 
+    update(t, delta) {
         // Charakter.js aufgerufen für die Steuerung des Charakters
-        if (this.charakter){
-        this.charakter.update(this.cursors);
+        if (this.charakter) {
+            this.charakter.update();
         }
 
         this.orcs.getChildren().forEach(orc => {

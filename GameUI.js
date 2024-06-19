@@ -20,7 +20,8 @@ class GameUI extends Phaser.Scene {
                 y: 10,
                 stepX: 16
             },
-            quantity: 3
+            // Anzeige der Herzen
+            quantity: 5
         });
 
         sceneEvents.on('player-health-changed', this.handlePlayerHealthChanged, this);
