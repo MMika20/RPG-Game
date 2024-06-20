@@ -1,4 +1,4 @@
-import sceneEvents from './events/EventsCenter.js';
+import sceneEvents from '../events/EventsCenter.js';
 
 class GameUI extends Phaser.Scene {
     constructor() {

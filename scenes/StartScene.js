@@ -3,6 +3,7 @@ class StartScene extends Phaser.Scene {
         super({ key: 'StartScene' });
     }
 
+
     create() {
         this.add.text(310, 280, 'Willkommen zu meinem Spiel!', { fontSize: '25px' });
         this.add.text(140, 310, 'In dieser Welt kannst du frei herumlaufen und erkunden, ', { fontSize: '25px' });
@@ -12,7 +13,7 @@ class StartScene extends Phaser.Scene {
         this.input.on('pointerdown', () => {
             this.scene.stop('StartScene');
             this.scene.start('GameScene');
-			this.scene.start('GameUI');
+			this.scene.run('GameUI');
         });
     }
 }

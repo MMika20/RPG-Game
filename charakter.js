@@ -17,12 +17,34 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             DAMAGE: 'DAMAGE',
             DEAD: 'DEAD'
         };
- 
+
         this.healthState = this.healthStates.IDLE;
         this.damageTime = 0;
 
         // Tatsächliche Herzen
         this._health = 5;
+
+        // Letzte Bewegungsrichtung
+        this.lastDirection = 'right';
+
+        // Pfeil-Cooldown
+        this.canShoot = true;
+        this.shootCooldown = 2000; // 1000 = 1 sek
+        this.lastShootTime = 0;
+
+        this.isSwingingSword = false;
+    }
+
+    swingSword(){
+        if (this.isSwingingSword || this.healthState === this.healthStates.DAMAGE){
+            return;
+        }
+
+        this.isSwingingSword = true;
+        this.anims.play('charakter-sword');
+        this.anims.currentAnim.on('complete', () => {
+            this.isSwingingSword = false
+        });
     }
 
     get health() {
@@ -37,9 +59,9 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         if (this._health <= 0 || this.healthState === this.healthStates.DEAD) {
             return;
         }
-    
+
         --this._health;
-    
+
         if (this._health <= 0) {
             this.healthState = this.healthStates.DEAD;
             this.anims.play('charakter-death');
@@ -51,40 +73,55 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.damageTime = 0;
         }
     }
-    
+
     shootArrow() {
-        if (!this.arrow) {
+        if (!this.arrow || !this.canShoot) {
             return;
         }
 
-        const parts = this.anims.currentAnim.key.split('-');
-        const direction = parts[2];
-
         const vec = new Phaser.Math.Vector2(0, 0);
 
-        switch (direction) {
+        switch (this.lastDirection) {
             case 'up':
                 vec.y = -1;
                 break;
-            
+
             case 'down':
                 vec.y = 1;
                 break;
-            
+
+            case 'left':
+                vec.x = -1;
+                break;
+
+            case 'right':
             default:
-            case 'side':
-                if (this.scaleX < 0) {
-                    vec.x = -1;
-                } else {
-                    vec.x = 1;
-                }
+                vec.x = 1;
                 break;
         }
-
+        
         const angle = vec.angle();
         const arrow = this.arrow.get(this.x, this.y, 'arrow');
+
+        if (!arrow) {
+            return;
+        }
+
+        if (vec.x !== 0) {
+            arrow.setSize(arrow.width * 0.3, arrow.height * 0.3);
+        } else {
+            arrow.setSize(arrow.width * 0.3, arrow.height * 0.5);
+        }
+
+        arrow.setActive(true).setVisible(true);
+
         arrow.setRotation(angle);
         arrow.setVelocity(vec.x * 300, vec.y * 300);
+
+        // Cooldown aktivieren
+        this.canShoot = false;
+        this.lastShootTime = this.scene.time.now;
+
     }
 
     preUpdate(t, delta) {
@@ -103,6 +140,11 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 }
                 break;
         }
+
+        // Pfeil-Cooldowntimer überprüfen
+        if (!this.canShoot && this.scene.time.now - this.lastShootTime >= this.shootCooldown) {
+            this.canShoot = true;
+        }
     }
 
     update() {
@@ -112,12 +154,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         if (!this.cursors) {
             return;
         }
-
-        if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
-            this.shootArrow();
-            return;
-        }
-
+    
         const speed = 70;
         let animKey = 'charakter-idle';
 
@@ -126,17 +163,25 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.scaleX = -1;
             this.body.offset.x = 56;
             animKey = 'charakter-walk';
+            this.lastDirection = 'left';
         } else if (this.cursors.right.isDown) {
             this.setVelocity(speed, 0);
             this.scaleX = 1;
             this.body.offset.x = 44;
             animKey = 'charakter-walk';
+            this.lastDirection = 'right';
         } else if (this.cursors.up.isDown) {
             this.setVelocity(0, -speed);
             animKey = 'charakter-walk';
+            this.lastDirection = 'up';
         } else if (this.cursors.down.isDown) {
             this.setVelocity(0, speed);
             animKey = 'charakter-walk';
+            this.lastDirection = 'down';
+        } else if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
+            this.setVelocity(0, 0);
+            animKey = 'charakter-bow';
+            this.shootArrow();
         } else {
             this.setVelocity(0, 0);
         }

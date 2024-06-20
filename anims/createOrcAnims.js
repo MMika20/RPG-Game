@@ -12,6 +12,13 @@ function createOrcAnims(anims) {
         repeat: -1,
         frameRate: 9
     });
+
+    anims.create({
+        key: 'enemy-death',
+        frames: anims.generateFrameNames('enemy', { start: 1, end: 4, prefix: 'death', suffix: '.png' }),
+        repeat: 1,
+        frameRate: 4
+    });
 }
 
 export default createOrcAnims;

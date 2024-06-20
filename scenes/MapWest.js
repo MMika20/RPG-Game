@@ -1,41 +1,32 @@
-import createOrcAnims from './anims/createOrcAnims.js';
-import createCharakterAnims from './anims/createCharakterAnims.js';
-import Orc from './Orc.js';
-import Charakter from './Charakter.js';
-import sceneEvents from './events/EventsCenter.js';
+import createOrcAnims from '../anims/createOrcAnims.js';
+import createCharakterAnims from '../anims/createCharakterAnims.js';
+import Orc from '../Orc.js';
+import Charakter from '../Charakter.js';
+import sceneEvents from '../events/EventsCenter.js';
 
-class GameScene extends Phaser.Scene {
+class MapWest extends Phaser.Scene {
     constructor() {
-        super({ key: 'GameScene' });
+        super({ key: 'MapWest' });
         this.cursors = null;
         this.charakter = null;
         this.orcs = null;
         this.playerOrcCollider = null;
         this.arrow = null;
+        this.transitionMainMap = null;
     }
 
-    preload() {
-        this.load.image('tiles', './assets/RPG.png');
-        this.load.tilemapTiledJSON('map1', './assets/RPG.json');
-        this.load.atlas('charakter', './assets/CharakterAnimations.png', './assets/CharakterAnimations.json');
-        this.load.atlas('enemy', './assets/EnemyAnimations.png', './assets/EnemyAnimations.json');
-        this.load.image('heart_full', './ui/heart_full.png');
-        this.load.image('heart_empty', './ui/heart_empty.png');
-        this.load.image('arrow', './assets/arrow.png');
-    }
 
     create() {
-        this.scene.run('GameUI');
         // Map erstellen
-        const map = this.make.tilemap({ key: "map1", tileWidth: 64, tileHeight: 45 });
-        const tileset = map.addTilesetImage("RPG", "tiles");
+        const map = this.make.tilemap({ key: "mapWest", tileWidth: 64, tileHeight: 45 });
+        const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");
         map.createLayer("Ground", tileset, 0, 0);
         const objectLayer = map.createLayer("Objects", tileset, 0, 0);
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
         // Charakter Einstellungen
-        this.charakter = new Charakter(this, 180, 158, 'charakter', 'Idle01.png');
+        this.charakter = new Charakter(this, 980, 150, 'charakter', 'Idle01.png');
         this.add.existing(this.charakter);
         this.physics.add.existing(this.charakter);
         this.charakter.setCollideWorldBounds(true);
@@ -47,16 +38,22 @@ class GameScene extends Phaser.Scene {
         // Collision aktivieren
         objectLayer.setCollisionByProperty({ collides: true });
         this.physics.add.collider(this.charakter, objectLayer);
-        this.physics.add.collider(this.arrow, objectLayer);
-        this.physics.add.collider(this.arrow, this.orcs, this.handleArrowOrcCollision, undefined, this);
+        this.physics.add.collider(this.arrow, objectLayer, this.handleArrowWallCollision, undefined, this);
 
         // Enemy kreieren (Orc)
         this.orcs = this.physics.add.group({
             classType: Orc
         });
-        this.orcs.create(128, 300, 'enemy', 'idle1.png');
+        this.orcs.create(900, 640, 'enemy');
+        this.orcs.create(850, 550, 'enemy');
+        this.orcs.create(870, 590, 'enemy');
+        this.orcs.create(860, 570, 'enemy');
+        this.orcs.create(850, 255, 'enemy');
+        this.orcs.create(830, 215, 'enemy');
 
+        this.physics.add.collider(this.arrow, this.orcs, this.handleArrowOrcCollision, undefined, this);
         this.physics.add.collider(this.orcs, objectLayer);
+        this.physics.add.collider(this.orcs, this.orcs);
 
         // Kamera Einstellungen
         this.cameras.main.startFollow(this.charakter);
@@ -72,10 +69,20 @@ class GameScene extends Phaser.Scene {
         });
 
         this.playerOrcCollider = this.physics.add.collider(this.orcs, this.charakter, this.handlePlayerOrcCollision, undefined, this);
+
+        // Übergangszone erstellen
+        this.transitionMainMap = this.add.zone(1024, 150, 1, 40);
+        this.physics.world.enable(this.transitionMainMap);
+        this.physics.add.overlap(this.charakter, this.transitionMainMap, this.handleTransition, null, this);
+    }
+
+    handleArrowWallCollision(arrow, objectLayer) {
+        arrow.setActive(false).setVisible(false);
     }
 
     handleArrowOrcCollision(arrow, orc) {
-        // Hier sollte die Logik für den Pfeil-Ork-Kollision eingefügt werden
+        arrow.disableBody(false, true);
+        orc.disableBody(true, true);
     }
 
     handlePlayerOrcCollision(charakter, orc) {
@@ -90,9 +97,13 @@ class GameScene extends Phaser.Scene {
             this.playerOrcCollider?.destroy();
         }
     }
+    
+    // Szenenwechsel
+    handleTransition() {
+        this.scene.start('GameScene');
+    }
 
     update(t, delta) {
-        // Charakter.js aufgerufen für die Steuerung des Charakters
         if (this.charakter) {
             this.charakter.update();
         }
@@ -105,4 +116,4 @@ class GameScene extends Phaser.Scene {
     }
 }
 
-export default GameScene;
+export default MapWest;
