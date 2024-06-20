@@ -29,7 +29,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         // Pfeil-Cooldown
         this.canShoot = true;
-        this.shootCooldown = 2000; // 1000 = 1 sek
+        this.shootCooldown = 525; // 1000 = 1 sek
         this.lastShootTime = 0;
 
         this.isSwingingSword = false;
@@ -178,7 +178,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.setVelocity(0, speed);
             animKey = 'charakter-walk';
             this.lastDirection = 'down';
-        } else if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
+        } else if (this.cursors.space.isDown) {
             this.setVelocity(0, 0);
             animKey = 'charakter-bow';
             this.shootArrow();

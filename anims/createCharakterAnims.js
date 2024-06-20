@@ -24,7 +24,7 @@ function createCharakterAnims(anims) {
         key: 'charakter-bow',
         frames: anims.generateFrameNames('charakter', { start: 6, end: 8, prefix: 'bow0', suffix: '.png' }),
         repeat: 0,
-        frameRate: 10
+        frameRate: 8
     })
 
     anims.create({
