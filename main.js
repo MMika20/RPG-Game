@@ -3,6 +3,7 @@ import StartScene from './scenes/StartScene.js';
 import GameScene from './scenes/GameScene.js';
 import GameUI from './scenes/GameUI.js';
 import MapWest from './scenes/MapWest.js';
+import MapSouthWest from './scenes/MapSouthWest.js';
 import Preloader from './scenes/Preloader.js'
 
 const config = {
@@ -13,11 +14,11 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            // Hitbox anzeigen lassen von Charaktern
-            debug: false
+            // Hitbox anzeigen lassen
+            debug: true
         }
     },
-    scene: [Preloader, StartScene, GameScene, MapWest, GameUI]
+    scene: [Preloader, StartScene, GameScene, MapWest, MapSouthWest, GameUI]
 };
 
 const game = new Phaser.Game(config);
