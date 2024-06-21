@@ -1,8 +1,10 @@
+import Phaser from 'phaser';
 import createOrcAnims from '../anims/createOrcAnims.js';
 import createCharakterAnims from '../anims/createCharakterAnims.js';
 import Orc from '../Orc.js';
 import Charakter from '../Charakter.js';
 import sceneEvents from '../events/EventsCenter.js';
+import CoinCounter from '../CoinCounter.js';
 
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -10,7 +12,6 @@ class GameScene extends Phaser.Scene {
         this.cursors = null;
         this.charakter = null;
         this.orcs = null;
-        this.playerOrcCollider = null;
         this.arrow = null;
         this.transitionMapWest = null;
     }
@@ -21,8 +22,6 @@ class GameScene extends Phaser.Scene {
         const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");
         map.createLayer("Ground", tileset, 0, 0);
         const objectLayer = map.createLayer("Objects", tileset, 0, 0);
-
-        this.cursors = this.input.keyboard.createCursorKeys();
 
         // Charakter Einstellungen
         this.charakter = new Charakter(this, 40, 150, 'charakter', 'Idle01.png');
@@ -82,22 +81,31 @@ class GameScene extends Phaser.Scene {
     handleArrowOrcCollision(arrow, orc) {
         arrow.disableBody(false, true);
         orc.disableBody(true, true);
+        const coins = Phaser.Math.Between(50, 200); // Zwischen 50 bis 200 Coins pro Orc
+        CoinCounter.addCoins(coins);
+        const coinsText = this.add.text(orc.x, orc.y, `+${coins}`, { fontSize: '12px', fill: '#ffffff' }).setOrigin(0.5);
+
+        // Timer, um den Text nach kurzer Zeit zu entfernen
+        this.time.delayedCall(1000, () => {
+            coinsText.destroy();
+        });
+
+        sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
 
     handlePlayerOrcCollision(charakter, orc) {
-        const dx = this.charakter.x - orc.x;
-        const dy = this.charakter.y - orc.y;
+        const dx = charakter.x - orc.x;
+        const dy = charakter.y - orc.y;
         const dir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
 
         charakter.handleDamage(dir);
-        sceneEvents.emit('player-health-changed', this.charakter.health);
+        sceneEvents.emit('player-health-changed', charakter.health);
 
-        if (this.charakter.health <= 0) {
-            this.playerOrcCollider?.destroy();
+        if (charakter.health <= 0) {
+            this.playerOrcCollider.destroy();
         }
     }
 
-    //Szenenwechsel
     handleTransition() {
         this.scene.start('MapWest');
     }

@@ -11,6 +11,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.body.setSize(this.width * 0.12, this.height * 0.16);
 
         this.cursors = scene.input.keyboard.createCursorKeys();
+    
 
         this.healthStates = {
             IDLE: 'IDLE',
@@ -35,17 +36,25 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.isSwingingSword = false;
     }
 
-    swingSword(){
-        if (this.isSwingingSword || this.healthState === this.healthStates.DAMAGE){
+    swingSword() {
+        // Überprüfen, ob der Charakter bereits das Schwert schwingt oder im Schadenszustand ist
+        if (this.isSwingingSword || this.healthState === this.healthStates.DAMAGE) {
             return;
         }
-
+    
+        // Die Schwert-Animation abspielen
         this.isSwingingSword = true;
         this.anims.play('charakter-sword');
-        this.anims.currentAnim.on('complete', () => {
-            this.isSwingingSword = false
+    
+        // Auf das Ereignis animationcomplete der Animationsverwaltung hören
+        this.on('animationcomplete', (animation) => {
+            if (animation.key === 'charakter-sword') {
+                this.isSwingingSword = false;
+            }
         });
     }
+    
+    
 
     get health() {
         return this._health;
@@ -123,6 +132,9 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.lastShootTime = this.scene.time.now;
 
     }
+    coins(coin){
+        return Phaser.Math.Between(50, 200)
+    }
 
     preUpdate(t, delta) {
         super.preUpdate(t, delta);
@@ -151,13 +163,10 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         if (this.healthState === this.healthStates.DAMAGE || this.healthState === this.healthStates.DEAD) {
             return;
         }
-        if (!this.cursors) {
-            return;
-        }
-    
+        
         const speed = 70;
         let animKey = 'charakter-idle';
-
+    
         if (this.cursors.left.isDown) {
             this.setVelocity(-speed, 0);
             this.scaleX = -1;
@@ -185,9 +194,10 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         } else {
             this.setVelocity(0, 0);
         }
-
+    
         this.anims.play(animKey, true);
     }
+    
 }
 
 export default Charakter;

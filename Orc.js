@@ -14,7 +14,7 @@ class Orc extends Phaser.Physics.Arcade.Sprite {
 
         this.direction = Phaser.Math.RND.pick(['left', 'right', 'up', 'down', 'idle']); // Random direction auswählen
 
-        this.anims.play('enemy-idle');
+        //this.anims.play('enemy-idle');
         this.flipX = false; // Für umdrehen der Animation
     }
 
