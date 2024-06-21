@@ -10,3 +10,4 @@ class EventsCenter extends Phaser.Events.EventEmitter {
 const sceneEvents = new EventsCenter();
 
 export default sceneEvents;
+ 

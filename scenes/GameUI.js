@@ -11,7 +11,7 @@ class GameUI extends Phaser.Scene {
 
     create() {
         // Anzeige für Coins oben links
-        this.coinsLabel = this.add.text(10, 10, 'Coins: 0', { fontSize: '16px', fill: '#ffffff' }).setScrollFactor(0);
+        this.coinsLabel = this.add.text(5, 45, 'Coins: 0', { fontSize: '16px', fill: '#ffffff' }).setScrollFactor(0);
 
         // Events abonnieren
         sceneEvents.on('player-coins-changed', this.updateCoins, this);

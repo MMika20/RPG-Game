@@ -30,7 +30,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         // Pfeil-Cooldown
         this.canShoot = true;
-        this.shootCooldown = 525; // 1000 = 1 sek
+        this.shootCooldown = 540; // 1000 = 1 sek
         this.lastShootTime = 0;
 
         this.isSwingingSword = false;
