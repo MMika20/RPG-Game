@@ -164,7 +164,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             return;
         }
         
-        const speed = 70;
+        const speed = 170;
         let animKey = 'charakter-idle';
     
         if (this.cursors.left.isDown) {

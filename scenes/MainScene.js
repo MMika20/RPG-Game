@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import GameScene from './GameScene';
+import MainMap from './MainMap.js';
 import MapWest from './MapWest';
 import MapSouthWest from './MapSouthWest';
 import Charakter from '../Charakter.js';

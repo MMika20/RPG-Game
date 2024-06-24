@@ -4,15 +4,15 @@ import createCharakterAnims from '../anims/createCharakterAnims';
 import createOrcAnims from '../anims/createOrcAnims';
 import Orc from '../Orc';
 
-class MapSouth extends CharacterScene {
+class MainMap extends CharacterScene {
     constructor() {
-        super('MapSouth');
+        super('MainMap');
         this.orcs = null;
     }
 
     create(data) {
         // Spezifische Szene Implementierungen
-        const map = this.make.tilemap({ key: "mapSouth", tileWidth: 64, tileHeight: 45 });
+        const map = this.make.tilemap({ key: "mainMap", tileWidth: 64, tileHeight: 45 });
         const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");
 
         // Ground-Layer erstellen und Kollisionen aktivieren
@@ -35,16 +35,15 @@ class MapSouth extends CharacterScene {
             this.orcs = null;
         }
 
-        // Charakter erstellen oder setzen
-        if (data && data.from === 'MainMap') {
-            this.createCharacter(185, 30, 'charakter', 'Idle01.png');
-        } else if (data && data.from === 'MapSouthWest') {
-            this.createCharacter(30, 490, 'charakter', 'Idle01.png');
+        // Charakter erstellen
+        if (data && data.from === 'MapWest') {
+            this.createCharacter(30, 150, 'charakter', 'Idle01.png');
+        } else if (data && data.from === 'MapSouth') {
+            this.createCharacter(185, 690, 'charakter', 'Idle01.png');
         } else {
             // Default-Fall oder andere Szenarien
-            this.createCharacter(100, 100, 'charakter', 'Idle01.png');
+            this.createCharacter(100, 150, 'charakter', 'Idle01.png');
         }
-
         const arrowGroup = this.createArrowGroup();
         this.charakter.setArrow(arrowGroup);
 
@@ -52,13 +51,12 @@ class MapSouth extends CharacterScene {
         this.orcs = this.physics.add.group({
             classType: Orc
         });
-        this.orcs.create(215, 100, 'enemy');
-        this.orcs.create(180, 100, 'enemy');
-        this.orcs.create(215, 140, 'enemy');
-        this.orcs.create(100, 190, 'enemy');
-        this.orcs.create(100, 240, 'enemy');
-        this.orcs.create(100, 600, 'enemy');
-        this.orcs.create(130, 600, 'enemy');
+        this.orcs.create(100, 290, 'enemy');
+        this.orcs.create(100, 230, 'enemy');
+        this.orcs.create(100, 260, 'enemy');
+        this.orcs.create(860, 570, 'enemy');
+        this.orcs.create(850, 255, 'enemy');
+        this.orcs.create(830, 215, 'enemy');
 
         const orcGroup = this.createOrcGroup();
         this.physics.add.collider(this.orcs, objectLayer); // Kollisionsabfrage mit Objektschicht
@@ -90,12 +88,13 @@ class MapSouth extends CharacterScene {
         });
 
         // Übergangszone erstellen
-        this.createTransitionZone(185, 1, 40, 1, () => {
-            this.scene.start('MainMap', { charakter: this.charakter, from: 'MapSouth' });
+        this.createTransitionZone(1, 150, 1, 40, () => {
+            this.scene.start('MapWest', { charakter: this.charakter, from: 'MainMap' });
         });
 
-        this.createTransitionZone(1, 490, 1, 40, () => {
-            this.scene.start('MapSouthWest', { charakter: this.charakter, from: 'MapSouth' });
+        this.createTransitionZone(185, 720, 40, 1, () => {
+            this.scene.start('MapSouth', { charakter: this.charakter, from: 'MainMap' });
+            this.charakter.setPosition(185, 30);
         });
     }
 
@@ -104,4 +103,4 @@ class MapSouth extends CharacterScene {
     }
 }
 
-export default MapSouth;
+export default MainMap;

@@ -1,47 +1,55 @@
 import Phaser from 'phaser';
-import createOrcAnims from '../anims/createOrcAnims.js';
-import createCharakterAnims from '../anims/createCharakterAnims.js';
-import Orc from '../Orc.js';
-import Charakter from '../Charakter.js';
-import sceneEvents from '../events/EventsCenter.js';
-import CoinCounter from '../CoinCounter.js';
+import CharacterScene from './CharacterScene';
+import createCharakterAnims from '../anims/createCharakterAnims';
+import createOrcAnims from '../anims/createOrcAnims';
+import Orc from '../Orc';
 
-class mapSouthWest extends Phaser.Scene {
+class MapSouthWest extends CharacterScene {
     constructor() {
-        super({ key: 'MapSouthWest' });
-        this.cursors = null;
-        this.charakter = null;
+        super('MapSouthWest');
         this.orcs = null;
-        this.arrow = null;
-        this.transitionMapWest = null;
-        this.transitionMapSouth = null;
     }
 
-    create() {
-        // Map erstellen
+    create(data) {
+        // Spezifische Szene Implementierungen
         const map = this.make.tilemap({ key: "mapSouthWest", tileWidth: 64, tileHeight: 45 });
         const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");
+
+        // Ground-Layer erstellen und Kollisionen aktivieren
         map.createLayer("Ground", tileset, 0, 0);
         const objectLayer = map.createLayer("Objects", tileset, 0, 0);
 
+        // Setze die Kollisionseigenschaften für die Objektschicht
+        objectLayer.setCollisionByProperty({ collides: true });
+
+        // Gemeinsame Initialisierungen
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Charakter Einstellungen
-        this.charakter = new Charakter(this, 615, 30, 'charakter', 'Idle01.png');
-        this.add.existing(this.charakter);
-        this.physics.add.existing(this.charakter);
-        this.charakter.setCollideWorldBounds(true);
+        // Entfernen aller existierenden Orks und des Charakters
+        if (this.charakter) {
+            this.charakter.destroy();
+            this.charakter = null;
+        }
+        if (this.orcs) {
+            this.orcs.destroy(true, true); // true, true entfernt auch das Physics-Body und zerstört das Spielobjekt
+            this.orcs = null;
+        }
 
-        // Arrow
-        this.arrow = this.physics.add.group();
-        this.charakter.setArrow(this.arrow);
+        // Charakter erstellen
+        if (data && data.from === 'MapSouth') {
+            this.createCharacter(994, 490, 'charakter', 'Idle01.png');
+        } else if(data && data.from === 'MapWest') {
+            this.createCharacter(615, 30, 'charakter', 'Idle01.png');
+        }
+        
+        else {
+            // Default-Fall oder andere Szenarien
+            this.createCharacter(100, 100, 'charakter', 'Idle01.png');
+        }
+        const arrowGroup = this.createArrowGroup();
+        this.charakter.setArrow(arrowGroup);
 
-        // Collision aktivieren
-        objectLayer.setCollisionByProperty({ collides: true });
-        this.physics.add.collider(this.charakter, objectLayer);
-        this.physics.add.collider(this.arrow, objectLayer, this.handleArrowWallCollision, undefined, this);
-
-        // Enemy kreieren (Orc)
+        // Orc-Gruppe erstellen und Kollisionen konfigurieren
         this.orcs = this.physics.add.group({
             classType: Orc
         });
@@ -51,10 +59,25 @@ class mapSouthWest extends Phaser.Scene {
         this.orcs.create(860, 570, 'enemy');
         this.orcs.create(850, 255, 'enemy');
         this.orcs.create(830, 215, 'enemy');
+        this.orcs.create(600, 400, 'enemy');
+        this.orcs.create(600, 430, 'enemy');
+        this.orcs.create(630, 400, 'enemy');
+        this.orcs.create(350, 400, 'enemy');
+        this.orcs.create(380, 430, 'enemy');
+        this.orcs.create(330, 400, 'enemy');
+        this.orcs.create(330, 150, 'enemy');
+        this.orcs.create(300, 150, 'enemy');
 
-        this.physics.add.collider(this.arrow, this.orcs, this.handleArrowOrcCollision, undefined, this);
-        this.physics.add.collider(this.orcs, objectLayer);
-        this.physics.add.collider(this.orcs, this.orcs);
+        const orcGroup = this.createOrcGroup();
+        this.physics.add.collider(this.orcs, objectLayer); // Kollisionsabfrage mit Objektschicht
+        this.physics.add.collider(this.orcs, this.orcs); // Kollisionsabfrage innerhalb der Orc-Gruppe
+
+        // Pfeil-Gruppe erstellen und Kollisionen konfigurieren
+        this.physics.add.collider(arrowGroup, this.orcs, this.handleArrowOrcCollision, undefined, this); // Kollisionsabfrage zwischen Pfeilen und Orcs
+        this.physics.add.collider(arrowGroup, objectLayer, this.handleArrowWallCollision, undefined, this); // Kollisionsabfrage zwischen Pfeilen und Objektschicht
+
+        // Kollisionsabfrage zwischen Charakter und Objektschicht
+        this.physics.add.collider(this.charakter, objectLayer);
 
         // Kamera Einstellungen
         this.cameras.main.startFollow(this.charakter);
@@ -65,72 +88,28 @@ class mapSouthWest extends Phaser.Scene {
         createOrcAnims(this.anims);
 
         // Orc Animation
-        this.orcs.getChildren().forEach(orc => {
+        orcGroup.getChildren().forEach(orc => {
             orc.play('enemy-walk');
         });
 
-        this.playerOrcCollider = this.physics.add.collider(this.orcs, this.charakter, this.handlePlayerOrcCollision, undefined, this);
+        // Kollisionsbehandlung zwischen Charakter und Orcs
+        this.physics.add.collider(this.orcs, this.charakter, (charakter, orc) => {
+            this.handlePlayerOrcCollision(charakter, orc);
+        });
 
         // Übergangszone erstellen
-        this.transitionMapWest = this.add.zone(615, 1, 40, 1);
-        this.physics.world.enable(this.transitionMapWest);
-        this.physics.add.overlap(this.charakter, this.transitionMapWest, this.handleTransitionMapWest, null, this);
-
-        this.transitionMapSouth = this.add.zone(1024, 500, 1, 40);
-        this.physics.world.enable(this.transitionMapSouth);
-        this.physics.add.overlap(this.charakter, this.transitionMapSouth, this.handleTransitionMapSouth, null, this);
-    }
-
-    handleArrowWallCollision(arrow, objectLayer) {
-        arrow.setActive(false).setVisible(false);
-    }
-
-    handleArrowOrcCollision(arrow, orc) {
-        arrow.disableBody(false, true);
-        orc.disableBody(true, true);
-        const coins = Phaser.Math.Between(50, 200); // Zwischen 50 bis 200 Coins pro Orc
-        CoinCounter.addCoins(coins);
-        const coinsText = this.add.text(orc.x, orc.y, `+${coins}`, { fontSize: '12px', fill: '#ffffff' }).setOrigin(0.5);
-
-        // Timer, um den Text nach kurzer Zeit zu entfernen
-        this.time.delayedCall(1000, () => {
-            coinsText.destroy();
+        this.createTransitionZone(615, 1, 40, 1, () => {
+            this.scene.start('MapWest', { charakter: this.charakter, from: 'MapSouthWest' });
         });
 
-        sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
-    }
-
-    handlePlayerOrcCollision(charakter, orc) {
-        const dx = charakter.x - orc.x;
-        const dy = charakter.y - orc.y;
-        const dir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
-
-        charakter.handleDamage(dir);
-        sceneEvents.emit('player-health-changed', charakter.health);
-
-        if (charakter.health <= 0) {
-            this.playerOrcCollider.destroy();
-        }
-    }
-
-    handleTransitionMapWest() {
-        this.scene.start('MapWest');
-    }
-    handleTransitionMapSouth() {
-        this.scene.start('MapSouth');
-    }
-
-    update(t, delta) {
-        if (this.charakter) {
-            this.charakter.update();
-        }
-
-        this.orcs.getChildren().forEach(orc => {
-            if (orc.idle) {
-                orc.idle();
-            }
+        this.createTransitionZone(1024, 490, 1, 40, () => {
+            this.scene.start('MapSouth', { charakter: this.charakter, from: 'MapSouthWest' });
         });
+    }
+
+    update(time, delta) {
+        this.updateCharacterAndOrcs();
     }
 }
 
-export default mapSouthWest;
+export default MapSouthWest;

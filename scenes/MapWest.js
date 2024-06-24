@@ -1,47 +1,53 @@
 import Phaser from 'phaser';
-import createOrcAnims from '../anims/createOrcAnims.js';
-import createCharakterAnims from '../anims/createCharakterAnims.js';
-import Orc from '../Orc.js';
-import Charakter from '../Charakter.js';
-import sceneEvents from '../events/EventsCenter.js';
-import CoinCounter from '../CoinCounter.js';
+import CharacterScene from './CharacterScene';
+import createCharakterAnims from '../anims/createCharakterAnims';
+import createOrcAnims from '../anims/createOrcAnims';
+import Orc from '../Orc';
 
-class MapWest extends Phaser.Scene {
+class MapWest extends CharacterScene {
     constructor() {
-        super({ key: 'MapWest' });
-        this.cursors = null;
-        this.charakter = null;
+        super('MapWest');
         this.orcs = null;
-        this.arrow = null;
-        this.transitionMainMap = null;
-        this.transitionSouthWestMap = null;
     }
 
-    create() {
-        // Map erstellen
+    create(data) {
+        // Spezifische Szene Implementierungen
         const map = this.make.tilemap({ key: "mapWest", tileWidth: 64, tileHeight: 45 });
         const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");
+
+        // Ground-Layer erstellen und Kollisionen aktivieren
         map.createLayer("Ground", tileset, 0, 0);
         const objectLayer = map.createLayer("Objects", tileset, 0, 0);
 
+        // Setze die Kollisionseigenschaften für die Objektschicht
+        objectLayer.setCollisionByProperty({ collides: true });
+
+        // Gemeinsame Initialisierungen
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Charakter Einstellungen
-        this.charakter = new Charakter(this, 980, 150, 'charakter', 'Idle01.png');
-        this.add.existing(this.charakter);
-        this.physics.add.existing(this.charakter);
-        this.charakter.setCollideWorldBounds(true);
+        // Entfernen aller existierenden Orks und des Charakters
+        if (this.charakter) {
+            this.charakter.destroy();
+            this.charakter = null;
+        }
+        if (this.orcs) {
+            this.orcs.destroy(true, true); // true, true entfernt auch das Physics-Body und zerstört das Spielobjekt
+            this.orcs = null;
+        }
 
-        // Arrow
-        this.arrow = this.physics.add.group();
-        this.charakter.setArrow(this.arrow);
+        // Charakter erstellen
+        if (data && data.from === 'MainMap') {
+            this.createCharacter(1000, 150, 'charakter', 'Idle01.png');
+        } else if (data && data.from === 'MapSouthWest') {
+            this.createCharacter(615, 690, 'charakter', 'Idle01.png');
+        } else {
+            // Default-Fall oder andere Szenarien
+            this.createCharacter(100, 100, 'charakter', 'Idle01.png');
+        }
+        const arrowGroup = this.createArrowGroup();
+        this.charakter.setArrow(arrowGroup);
 
-        // Collision aktivieren
-        objectLayer.setCollisionByProperty({ collides: true });
-        this.physics.add.collider(this.charakter, objectLayer);
-        this.physics.add.collider(this.arrow, objectLayer, this.handleArrowWallCollision, undefined, this);
-
-        // Enemy kreieren (Orc)
+        // Orc-Gruppe erstellen und Kollisionen konfigurieren
         this.orcs = this.physics.add.group({
             classType: Orc
         });
@@ -52,9 +58,16 @@ class MapWest extends Phaser.Scene {
         this.orcs.create(850, 255, 'enemy');
         this.orcs.create(830, 215, 'enemy');
 
-        this.physics.add.collider(this.arrow, this.orcs, this.handleArrowOrcCollision, undefined, this);
-        this.physics.add.collider(this.orcs, objectLayer);
-        this.physics.add.collider(this.orcs, this.orcs);
+        const orcGroup = this.createOrcGroup();
+        this.physics.add.collider(this.orcs, objectLayer); // Kollisionsabfrage mit Objektschicht
+        this.physics.add.collider(this.orcs, this.orcs); // Kollisionsabfrage innerhalb der Orc-Gruppe
+
+        // Pfeil-Gruppe erstellen und Kollisionen konfigurieren
+        this.physics.add.collider(arrowGroup, this.orcs, this.handleArrowOrcCollision, undefined, this); // Kollisionsabfrage zwischen Pfeilen und Orcs
+        this.physics.add.collider(arrowGroup, objectLayer, this.handleArrowWallCollision, undefined, this); // Kollisionsabfrage zwischen Pfeilen und Objektschicht
+
+        // Kollisionsabfrage zwischen Charakter und Objektschicht
+        this.physics.add.collider(this.charakter, objectLayer);
 
         // Kamera Einstellungen
         this.cameras.main.startFollow(this.charakter);
@@ -65,71 +78,27 @@ class MapWest extends Phaser.Scene {
         createOrcAnims(this.anims);
 
         // Orc Animation
-        this.orcs.getChildren().forEach(orc => {
+        orcGroup.getChildren().forEach(orc => {
             orc.play('enemy-walk');
         });
 
-        this.playerOrcCollider = this.physics.add.collider(this.orcs, this.charakter, this.handlePlayerOrcCollision, undefined, this);
-
-        // Übergangszonen erstellen
-        this.transitionMainMap = this.add.zone(1024, 150, 1, 40);
-        this.physics.world.enable(this.transitionMainMap);
-        this.physics.add.overlap(this.charakter, this.transitionMainMap, this.handleTransitionMainMap, null, this);
-
-        this.transitionSouthWestMap = this.add.zone(615, 720, 40 ,1);
-        this.physics.world.enable(this.transitionSouthWestMap);
-        this.physics.add.overlap(this.charakter, this.transitionSouthWestMap, this.handleTransitionSouthWestMap, null, this);
-    }
-
-    handleArrowWallCollision(arrow, objectLayer) {
-        arrow.setActive(false).setVisible(false);
-    }
-
-    handleArrowOrcCollision(arrow, orc) {
-        arrow.disableBody(false, true);
-        orc.disableBody(true, true);
-        const coins = Phaser.Math.Between(50, 200); // Zwischen 50 bis 200 Coins pro Orc
-        CoinCounter.addCoins(coins);
-        const coinsText = this.add.text(orc.x, orc.y, `+${coins}`, { fontSize: '12px', fill: '#ffffff' }).setOrigin(0.5);
-
-        // Timer, um den Text nach kurzer Zeit zu entfernen
-        this.time.delayedCall(1000, () => {
-            coinsText.destroy();
+        // Kollisionsbehandlung zwischen Charakter und Orcs
+        this.physics.add.collider(this.orcs, this.charakter, (charakter, orc) => {
+            this.handlePlayerOrcCollision(charakter, orc);
         });
 
-        sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
-    }
-
-    handlePlayerOrcCollision(charakter, orc) {
-        const dx = charakter.x - orc.x;
-        const dy = charakter.y - orc.y;
-        const dir = new Phaser.Math.Vector2(dx, dy).normalize().scale(200);
-
-        charakter.handleDamage(dir);
-        sceneEvents.emit('player-health-changed', charakter.health);
-
-        if (charakter.health <= 0) {
-            this.playerOrcCollider.destroy();
-        }
-    }
-
-    handleTransitionMainMap() {
-        this.scene.start('GameScene');
-    }
-    handleTransitionSouthWestMap() {
-        this.scene.start('MapSouthWest');
-    }
-
-    update(t, delta) {
-        if (this.charakter) {
-            this.charakter.update();
-        }
-
-        this.orcs.getChildren().forEach(orc => {
-            if (orc.idle) {
-                orc.idle();
-            }
+        // Übergangszone erstellen
+        this.createTransitionZone(1024, 150, 1, 40, () => {
+            this.scene.start('MainMap', { charakter: this.charakter, from: 'MapWest' });
         });
+
+        this.createTransitionZone(615, 720, 40, 1, () => {
+            this.scene.start('MapSouthWest', { charakter: this.charakter, from: 'MapWest' });
+        });
+    }
+
+    update(time, delta) {
+        this.updateCharacterAndOrcs();
     }
 }
 

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import StartScene from './scenes/StartScene.js';
-import GameScene from './scenes/GameScene.js';
+import MainMap from './scenes/MainMap.js';
 import GameUI from './scenes/GameUI.js';
 import MapWest from './scenes/MapWest.js';
 import MapSouthWest from './scenes/MapSouthWest.js';
@@ -13,14 +13,15 @@ const config = {
     width: 1024,
     height: 720,
     backgroundColor: '#2d2d2d',
+    scene: [Preloader, StartScene, MainMap, MapWest, MapSouthWest, MapSouth, GameUI],
     physics: {
         default: 'arcade',
         arcade: {
             // Hitbox anzeigen lassen
-            debug: false
+            debug: true
         }
     },
-    scene: [Preloader, StartScene, GameScene, MapWest, MapSouthWest, MapSouth, GameUI]
+    
 };
 
 const game = new Phaser.Game(config);

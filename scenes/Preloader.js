@@ -4,7 +4,7 @@ class Preloader extends Phaser.Scene {
     }
     preload(){
         this.load.image('tiles1', './assets/RPG_Map_Tileset.png');
-        this.load.tilemapTiledJSON('map1', './assets/RPG.json');
+        this.load.tilemapTiledJSON('mainMap', './assets/RPG.json');
         this.load.tilemapTiledJSON('mapWest', './assets/RPG_MapWest.json');
         this.load.tilemapTiledJSON('mapSouthWest', './assets/RPG_MapSouthWest.json');
         this.load.tilemapTiledJSON('mapSouth', './assets/RPG_MapSouth.json');
