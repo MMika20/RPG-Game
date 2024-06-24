@@ -21,4 +21,6 @@ const config = {
     scene: [Preloader, StartScene, GameScene, MapWest, MapSouthWest, GameUI]
 };
 
+//test2
+
 const game = new Phaser.Game(config);
