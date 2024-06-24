@@ -17,12 +17,10 @@ const config = {
         default: 'arcade',
         arcade: {
             // Hitbox anzeigen lassen
-            debug: true
+            debug: false
         }
     },
     scene: [Preloader, StartScene, GameScene, MapWest, MapSouthWest, MapSouth, GameUI]
 };
-
-// test
 
 const game = new Phaser.Game(config);
