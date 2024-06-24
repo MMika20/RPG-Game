@@ -1,0 +1,18 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Verhindert Scrollen, um das Spiel auf der ganzen Seite anzuzeigen */
+  background-color: #333333; /* Hintergrundfarbe für den Körper */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Vollständige Höhe des Viewports nutzen */
+  font-family: Arial, sans-serif; /* Standard-Schriftart */
+}
+
+canvas {
+  image-rendering: pixelated; /* Für ein pixelartiges Aussehen des Spiels */
+  border: 2px solid #fff; /* Einfacher Rahmen um das Canvas */
+  background-color: #000; /* Hintergrundfarbe des Spiels */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); /* Schatten um das Canvas */
+}
