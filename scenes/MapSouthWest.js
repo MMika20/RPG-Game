@@ -13,7 +13,8 @@ class mapSouthWest extends Phaser.Scene {
         this.charakter = null;
         this.orcs = null;
         this.arrow = null;
-        this.transitionMainMap = null;
+        this.transitionMapWest = null;
+        this.transitionMapSouth = null;
     }
 
     create() {
@@ -26,7 +27,7 @@ class mapSouthWest extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
 
         // Charakter Einstellungen
-        this.charakter = new Charakter(this, 980, 150, 'charakter', 'Idle01.png');
+        this.charakter = new Charakter(this, 615, 30, 'charakter', 'Idle01.png');
         this.add.existing(this.charakter);
         this.physics.add.existing(this.charakter);
         this.charakter.setCollideWorldBounds(true);
@@ -71,9 +72,13 @@ class mapSouthWest extends Phaser.Scene {
         this.playerOrcCollider = this.physics.add.collider(this.orcs, this.charakter, this.handlePlayerOrcCollision, undefined, this);
 
         // Übergangszone erstellen
-        this.transitionMainMap = this.add.zone(1024, 150, 1, 40);
-        this.physics.world.enable(this.transitionMainMap);
-        this.physics.add.overlap(this.charakter, this.transitionMainMap, this.handleTransition, null, this);
+        this.transitionMapWest = this.add.zone(615, 1, 40, 1);
+        this.physics.world.enable(this.transitionMapWest);
+        this.physics.add.overlap(this.charakter, this.transitionMapWest, this.handleTransitionMapWest, null, this);
+
+        this.transitionMapSouth = this.add.zone(1024, 500, 1, 40);
+        this.physics.world.enable(this.transitionMapSouth);
+        this.physics.add.overlap(this.charakter, this.transitionMapSouth, this.handleTransitionMapSouth, null, this);
     }
 
     handleArrowWallCollision(arrow, objectLayer) {
@@ -108,8 +113,11 @@ class mapSouthWest extends Phaser.Scene {
         }
     }
 
-    handleTransition() {
-        this.scene.start('GameScene');
+    handleTransitionMapWest() {
+        this.scene.start('MapWest');
+    }
+    handleTransitionMapSouth() {
+        this.scene.start('MapSouth');
     }
 
     update(t, delta) {

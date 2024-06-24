@@ -14,6 +14,7 @@ class MapWest extends Phaser.Scene {
         this.orcs = null;
         this.arrow = null;
         this.transitionMainMap = null;
+        this.transitionSouthWestMap = null;
     }
 
     create() {
@@ -70,10 +71,14 @@ class MapWest extends Phaser.Scene {
 
         this.playerOrcCollider = this.physics.add.collider(this.orcs, this.charakter, this.handlePlayerOrcCollision, undefined, this);
 
-        // Übergangszone erstellen
+        // Übergangszonen erstellen
         this.transitionMainMap = this.add.zone(1024, 150, 1, 40);
         this.physics.world.enable(this.transitionMainMap);
-        this.physics.add.overlap(this.charakter, this.transitionMainMap, this.handleTransition, null, this);
+        this.physics.add.overlap(this.charakter, this.transitionMainMap, this.handleTransitionMainMap, null, this);
+
+        this.transitionSouthWestMap = this.add.zone(615, 720, 40 ,1);
+        this.physics.world.enable(this.transitionSouthWestMap);
+        this.physics.add.overlap(this.charakter, this.transitionSouthWestMap, this.handleTransitionSouthWestMap, null, this);
     }
 
     handleArrowWallCollision(arrow, objectLayer) {
@@ -108,8 +113,11 @@ class MapWest extends Phaser.Scene {
         }
     }
 
-    handleTransition() {
+    handleTransitionMainMap() {
         this.scene.start('GameScene');
+    }
+    handleTransitionSouthWestMap() {
+        this.scene.start('MapSouthWest');
     }
 
     update(t, delta) {

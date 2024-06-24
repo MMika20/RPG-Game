@@ -6,26 +6,28 @@ import Charakter from '../Charakter.js';
 import sceneEvents from '../events/EventsCenter.js';
 import CoinCounter from '../CoinCounter.js';
 
-class GameScene extends Phaser.Scene {
+class MapSouth extends Phaser.Scene {
     constructor() {
-        super({ key: 'GameScene' });
+        super({ key: 'MapSouth' });
         this.cursors = null;
         this.charakter = null;
         this.orcs = null;
         this.arrow = null;
-        this.transitionMapWest = null;
-        this.transitionMapSouth = null;
+        this.transitionMainMap = null;
+        this.transitionSouthWestMap = null;
     }
 
     create() {
         // Map erstellen
-        const map = this.make.tilemap({ key: "map1", tileWidth: 64, tileHeight: 45 });
+        const map = this.make.tilemap({ key: "mapSouth", tileWidth: 64, tileHeight: 45 });
         const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");
         map.createLayer("Ground", tileset, 0, 0);
         const objectLayer = map.createLayer("Objects", tileset, 0, 0);
 
+        this.cursors = this.input.keyboard.createCursorKeys();
+
         // Charakter Einstellungen
-        this.charakter = new Charakter(this, 40, 150, 'charakter', 'Idle01.png');
+        this.charakter = new Charakter(this, 185, 30, 'charakter', 'Idle01.png');
         this.add.existing(this.charakter);
         this.physics.add.existing(this.charakter);
         this.charakter.setCollideWorldBounds(true);
@@ -43,12 +45,12 @@ class GameScene extends Phaser.Scene {
         this.orcs = this.physics.add.group({
             classType: Orc
         });
-        this.orcs.create(128, 300, 'enemy');
-        this.orcs.create(144, 300, 'enemy');
-        this.orcs.create(128, 330, 'enemy');
-        this.orcs.create(450, 158, 'enemy');
-        this.orcs.create(450, 175, 'enemy');
-        this.orcs.create(450, 175, 'enemy');
+        this.orcs.create(900, 640, 'enemy');
+        this.orcs.create(850, 550, 'enemy');
+        this.orcs.create(870, 590, 'enemy');
+        this.orcs.create(860, 570, 'enemy');
+        this.orcs.create(850, 255, 'enemy');
+        this.orcs.create(830, 215, 'enemy');
 
         this.physics.add.collider(this.arrow, this.orcs, this.handleArrowOrcCollision, undefined, this);
         this.physics.add.collider(this.orcs, objectLayer);
@@ -69,14 +71,14 @@ class GameScene extends Phaser.Scene {
 
         this.playerOrcCollider = this.physics.add.collider(this.orcs, this.charakter, this.handlePlayerOrcCollision, undefined, this);
 
-        // Übergangszone erstellen
-        this.transitionMapWest = this.add.zone(1, 150, 1, 40);
-        this.physics.world.enable(this.transitionMapWest);
-        this.physics.add.overlap(this.charakter, this.transitionMapWest, this.handleTransitionMapWest, null, this);
+        // Übergangszonen erstellen
+        this.transitionMainMap = this.add.zone(185, 1, 40, 1);
+        this.physics.world.enable(this.transitionMainMap);
+        this.physics.add.overlap(this.charakter, this.transitionMainMap, this.handleTransitionMainMap, null, this);
 
-        this.transitionMapSouth = this.add.zone(185, 720, 40, 1);
-        this.physics.world.enable(this.transitionMapSouth);
-        this.physics.add.overlap(this.charakter, this.transitionMapSouth, this.handleTransitionMapSouth, null, this);
+        this.transitionSouthWestMap = this.add.zone(1, 500, 1 ,40);
+        this.physics.world.enable(this.transitionSouthWestMap);
+        this.physics.add.overlap(this.charakter, this.transitionSouthWestMap, this.handleTransitionSouthWestMap, null, this);
     }
 
     handleArrowWallCollision(arrow, objectLayer) {
@@ -111,11 +113,11 @@ class GameScene extends Phaser.Scene {
         }
     }
 
-    handleTransitionMapWest() {
-        this.scene.start('MapWest');
+    handleTransitionMainMap() {
+        this.scene.start('GameScene');
     }
-    handleTransitionMapSouth() {
-        this.scene.start('MapSouth');
+    handleTransitionSouthWestMap() {
+        this.scene.start('MapSouthWest');
     }
 
     update(t, delta) {
@@ -131,4 +133,4 @@ class GameScene extends Phaser.Scene {
     }
 }
 
-export default GameScene;
+export default MapSouth;
