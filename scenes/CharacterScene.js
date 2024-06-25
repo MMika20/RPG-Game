@@ -52,6 +52,23 @@ class CharacterScene extends Phaser.Scene {
         arrow.setActive(false).setVisible(false);
     }
 
+    handleSwordOrcCollision(sword, orc){
+        CoinCounter.getCoins;
+        sword.disableBody(false, false);
+        orc.disableBody(true, true);
+        const coins = Phaser.Math.Between(50, 200); // Zwischen 50 bis 200 Coins pro Orc
+        CoinCounter.addCoins(coins);
+        
+        const coinsText = this.add.text(orc.x, orc.y, `+${coins}`, { fontSize: '12px', fill: '#ffffff' }).setOrigin(0.5);
+
+        // Timer, um den Text nach kurzer Zeit zu entfernen
+        this.time.delayedCall(1000, () => {
+            coinsText.destroy();
+        });
+
+        sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
+    }
+
     handleArrowOrcCollision(arrow, orc) {
         CoinCounter.getCoins;
         arrow.disableBody(false, true);

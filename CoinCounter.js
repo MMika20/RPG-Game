@@ -1,5 +1,5 @@
 // CoinCounter.js
-let coins = 12000;
+let coins = 0;
 
 export default {
     getCoins() {

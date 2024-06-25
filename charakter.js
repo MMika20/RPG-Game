@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import SpeedManager from './SpeedManager';
+import CoinCounter from './CoinCounter';
+import sceneEvents from './events/EventsCenter';
 
 class Charakter extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
@@ -282,6 +284,10 @@ updateSwordHitbox() {
 
     hitOrk(swordHitbox, ork) {
         ork.destroy(); // Entfernt den Ork
+        const coins = Phaser.Math.Between(50, 200); // Zwischen 50 bis 200 Coins pro Orc
+        CoinCounter.addCoins(coins);
+
+        sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
 }
 
