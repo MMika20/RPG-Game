@@ -3,6 +3,8 @@ import sceneEvents from '../events/EventsCenter.js';
 import CoinCounter from '../CoinCounter.js';
 import Charakter from '../Charakter.js';
 import Orc from '../Orc.js';
+import Trader from '../Trader.js';
+import SpeedManager from '../SpeedManager.js';
 
 class CharacterScene extends Phaser.Scene {
     constructor(key) {
@@ -21,6 +23,14 @@ class CharacterScene extends Phaser.Scene {
         } else {
             this.charakter.setPosition(x, y);
         }
+    }
+
+    createTrader(x, y, texture, frame) {
+        this.trader = new Trader(this, x, y, texture, frame);
+        this.physics.add.existing(this.trader);
+        this.physics.add.overlap(this.character, this.trader, () => {
+            this.trader.interactWithCharacter(this.character);
+        });
     }
 
     createArrowGroup() {
@@ -43,10 +53,12 @@ class CharacterScene extends Phaser.Scene {
     }
 
     handleArrowOrcCollision(arrow, orc) {
+        CoinCounter.getCoins;
         arrow.disableBody(false, true);
         orc.disableBody(true, true);
         const coins = Phaser.Math.Between(50, 200); // Zwischen 50 bis 200 Coins pro Orc
         CoinCounter.addCoins(coins);
+        
         const coinsText = this.add.text(orc.x, orc.y, `+${coins}`, { fontSize: '12px', fill: '#ffffff' }).setOrigin(0.5);
 
         // Timer, um den Text nach kurzer Zeit zu entfernen

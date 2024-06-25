@@ -1,3 +1,4 @@
+// MapSouth.js
 import Phaser from 'phaser';
 import CharacterScene from './CharacterScene';
 import createCharakterAnims from '../anims/createCharakterAnims';

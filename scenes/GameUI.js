@@ -13,7 +13,7 @@ class GameUI extends Phaser.Scene {
         // Anzeige für Coins oben links
         this.coinsLabel = this.add.text(5, 45, 'Coins: 0', { fontSize: '16px', fill: '#ffffff' }).setScrollFactor(0);
 
-        // Events abonnieren
+        // Events
         sceneEvents.on('player-coins-changed', this.updateCoins, this);
         sceneEvents.on(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
 
@@ -36,6 +36,7 @@ class GameUI extends Phaser.Scene {
         // Event für Änderungen der Lebenspunkte des Spielers abonnieren
         sceneEvents.on('player-health-changed', this.handlePlayerHealthChanged, this);
     }
+
 
     updateCoins(coins) {
         this.coinsLabel.setText(`Coins: ${coins}`);

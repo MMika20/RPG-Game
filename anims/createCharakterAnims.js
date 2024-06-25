@@ -31,7 +31,7 @@ function createCharakterAnims(anims) {
         key: 'charakter-sword',
         frames: anims.generateFrameNames('charakter', { start: 1, end: 6, prefix: 'sword0', suffix: '.png'}),
         repeat: 1,
-        frameRate: 6
+        frameRate: 10
     })
 }
 

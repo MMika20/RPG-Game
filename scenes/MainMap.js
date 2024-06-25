@@ -3,11 +3,14 @@ import CharacterScene from './CharacterScene';
 import createCharakterAnims from '../anims/createCharakterAnims';
 import createOrcAnims from '../anims/createOrcAnims';
 import Orc from '../Orc';
+import Trader from '../Trader';
+import CoinCounter from '../CoinCounter';
 
 class MainMap extends CharacterScene {
     constructor() {
         super('MainMap');
         this.orcs = null;
+        this.trader = null;
     }
 
     create(data) {
@@ -46,7 +49,7 @@ class MainMap extends CharacterScene {
         }
         const arrowGroup = this.createArrowGroup();
         this.charakter.setArrow(arrowGroup);
-
+        
         // Orc-Gruppe erstellen und Kollisionen konfigurieren
         this.orcs = this.physics.add.group({
             classType: Orc
@@ -58,7 +61,6 @@ class MainMap extends CharacterScene {
         this.orcs.create(850, 255, 'enemy');
         this.orcs.create(830, 215, 'enemy');
 
-        const orcGroup = this.createOrcGroup();
         this.physics.add.collider(this.orcs, objectLayer); // Kollisionsabfrage mit Objektschicht
         this.physics.add.collider(this.orcs, this.orcs); // Kollisionsabfrage innerhalb der Orc-Gruppe
 
@@ -69,6 +71,14 @@ class MainMap extends CharacterScene {
         // Kollisionsabfrage zwischen Charakter und Objektschicht
         this.physics.add.collider(this.charakter, objectLayer);
 
+        // Trader + Kollision erstellt
+        this.trader = new Trader(this, 650, 60, 'trader');
+        this.add.text(650,40,'2000 Coins = Movementspeed++', { fontSize: '8px'}).setOrigin(0.5);
+        this.physics.add.existing(this.trader);
+        this.physics.add.overlap(this.charakter, this.trader, () => {
+            this.trader.interactWithCharacter(this.charakter);
+        });
+
         // Kamera Einstellungen
         this.cameras.main.startFollow(this.charakter);
         this.cameras.main.setZoom(3);
@@ -78,7 +88,7 @@ class MainMap extends CharacterScene {
         createOrcAnims(this.anims);
 
         // Orc Animation
-        orcGroup.getChildren().forEach(orc => {
+        this.orcs.getChildren().forEach(orc => {
             orc.play('enemy-walk');
         });
 
