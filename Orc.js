@@ -11,7 +11,7 @@ class Orc extends Phaser.Physics.Arcade.Sprite {
         // Enemy Einstellungen
         this.body.setSize(this.width * 0.12, this.height * 0.16); // Größe
         this.speed = 35;   // Geschwindigkeit erhöht für bessere Verfolgung
-        
+        this.attackRange = 85
         this.direction = Phaser.Math.RND.pick(['left', 'right', 'up', 'down', 'idle']); // Random direction auswählen
 
         this.flipX = false; // Für umdrehen der Animation
@@ -23,7 +23,7 @@ class Orc extends Phaser.Physics.Arcade.Sprite {
         const character = this.scene.charakter; // Referenz auf den Charakter aus der Szene
         if (character) {
             const distance = Phaser.Math.Distance.Between(this.x, this.y, character.x, character.y);
-            if (distance < 85) { // Wenn der Charakter in Reichweite ist (200 Pixel)
+            if (distance < this.attackRange) { // Wenn der Charakter in Reichweite ist (200 Pixel)
                 this.moveToCharacter(character);
             } else {
                 this.randomMovement(time, delta);

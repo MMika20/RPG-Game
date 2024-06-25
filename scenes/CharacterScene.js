@@ -78,8 +78,10 @@ class CharacterScene extends Phaser.Scene {
         sceneEvents.emit('player-health-changed', charakter.health);
 
         if (charakter.health <= 0) {
-            this.playerOrcCollider.destroy();
-        }
+        charakter.destroy();
+        this.add.text(charakter.x, charakter.y, 'Game Over!', { fontSize: '32px'}).setOrigin('0.5');
+        this.add.text(charakter.x, charakter.y+20, 'Please Restart.', { fontSize: '16px'}).setOrigin('0.5');
+       }
     }
 
     updateCharacterAndOrcs() {
