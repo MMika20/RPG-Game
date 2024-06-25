@@ -8,6 +8,8 @@ class Preloader extends Phaser.Scene {
         this.load.tilemapTiledJSON('mapWest', './assets/RPG_MapWest.json');
         this.load.tilemapTiledJSON('mapSouthWest', './assets/RPG_MapSouthWest.json');
         this.load.tilemapTiledJSON('mapSouth', './assets/RPG_MapSouth.json');
+        this.load.tilemapTiledJSON('mapSouthEast', './assets/RPG_MapSouthEast.json');
+        this.load.tilemapTiledJSON('mapEast', './assets/RPG_mapEast.json');
         this.load.atlas('charakter', './assets/CharakterAnimations.png', './assets/CharakterAnimations.json');
         this.load.atlas('enemy', './assets/EnemyAnimations.png', './assets/EnemyAnimations.json');
         this.load.atlas('trader', './assets/TraderAnimations.png', './assets/TraderAnimations.json');

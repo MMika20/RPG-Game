@@ -33,6 +33,13 @@ function createCharakterAnims(anims) {
         repeat: 1,
         frameRate: 10
     })
+
+    anims.create({
+        key: 'charakter-dash',
+        frames: anims.generateFrameNames('charakter', {start: 3, end: 3, prefix: 'death0', suffix: '.png'}),
+        repeat: 0,
+        frameRate: 1
+    })
 }
 
 export default createCharakterAnims;

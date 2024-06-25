@@ -18,7 +18,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             left: Phaser.Input.Keyboard.KeyCodes.A,
             right: Phaser.Input.Keyboard.KeyCodes.D,
             sword: Phaser.Input.Keyboard.KeyCodes.E,
-            bow: Phaser.Input.Keyboard.KeyCodes.SPACE
+            bow: Phaser.Input.Keyboard.KeyCodes.SPACE,
+            dash: Phaser.Input.Keyboard.KeyCodes.SHIFT
         });
 
         this.healthStates = {
@@ -48,47 +49,86 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.swordHitboxGroup = scene.physics.add.group(this.swordHitbox);
     }
 
-    swingSword() {
-        if (this.isSwingingSword || this.healthState === this.healthStates.DAMAGE) {
+swingSword() {
+    if (this.isSwingingSword || this.healthState === this.healthStates.DAMAGE) {
+        return;
+    }
+
+    this.isSwingingSword = true;
+    this.anims.play('charakter-sword');
+
+    // Hitbox positionieren und aktivieren
+    this.updateSwordHitbox();
+    this.swordHitbox.body.enable = true;
+
+    this.once('animationcomplete', (animation) => {
+        if (animation.key === 'charakter-sword') {
+            this.isSwingingSword = false;
+            this.swordHitbox.body.enable = false; // Hitbox deaktivieren
+            this.swordHitbox.setPosition(-100, -100); // Setze Hitbox außerhalb der Spielwelt
+        }
+    });
+
+
+    }
+    dash() {
+        if (this.healthState === this.healthStates.DAMAGE || this.healthState === this.healthStates.DEAD) {
             return;
         }
-
-        this.isSwingingSword = true;
-        this.anims.play('charakter-sword');
-
-        // Hitbox positionieren und aktivieren
-        this.updateSwordHitbox();
-        this.swordHitbox.body.enable = true;
-
-        this.once('animationcomplete', (animation) => {
-            if (animation.key === 'charakter-sword') {
-                this.isSwingingSword = false;
-                this.swordHitbox.body.enable = false; // Hitbox deaktivieren
-            }
-        });
-    }
-
-    updateSwordHitbox() {
-        let offsetX = 0, offsetY = 0;
-        const hitboxWidth = 20, hitboxHeight = 10;
-
+    
+        const dashSpeed = 400; // Beispiel für die Dash-Geschwindigkeit
+        const dashDuration = 200; // Beispiel für die Dauer des Dashes in Millisekunden
+    
+        let velocityX = 0;
+        let velocityY = 0;
+    
         switch (this.lastDirection) {
             case 'left':
-                offsetX = -hitboxWidth;
+                velocityX = -dashSpeed;
                 break;
             case 'right':
-                offsetX = hitboxWidth;
+                velocityX = dashSpeed;
                 break;
             case 'up':
-                offsetY = -hitboxHeight;
+                velocityY = -dashSpeed;
                 break;
             case 'down':
-                offsetY = hitboxHeight;
+                velocityY = dashSpeed;
                 break;
         }
-
-        this.swordHitbox.setPosition(this.x + offsetX, this.y + offsetY);
+    
+        this.setVelocity(velocityX, velocityY);
+    
+        // Setze einen Timer, um den Dash nach der angegebenen Dauer zu beenden
+        this.scene.time.delayedCall(dashDuration, () => {
+            this.setVelocity(0, 0); // Setze die Geschwindigkeit auf Null, um den Dash zu beenden
+        }, [], this);
     }
+
+    // In der Charakter-Klasse
+
+updateSwordHitbox() {
+    let offsetX = 0, offsetY = 0;
+    const hitboxWidth = 20, hitboxHeight = 10;
+
+    switch (this.lastDirection) {
+        case 'left':
+            offsetX = -hitboxWidth;
+            break;
+        case 'right':
+            offsetX = hitboxWidth;
+            break;
+        case 'up':
+            offsetY = -hitboxHeight;
+            break;
+        case 'down':
+            offsetY = hitboxHeight;
+            break;
+    }
+
+    this.swordHitbox.setPosition(this.x + offsetX, this.y + offsetY);
+}
+
 
     get health() {
         return this._health;
@@ -226,7 +266,11 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.setVelocity(0, 0);
             animKey = 'charakter-sword';
             this.swingSword();
-        } else {
+        } else if (this.customKeys.dash.isDown) {
+            this.setVelocity(0, 0);
+            this.dash();
+            animKey = 'charakter-dash';
+        }else {
             this.setVelocity(0, 0);
         }
 

@@ -41,6 +41,8 @@ class MapSouth extends CharacterScene {
             this.createCharacter(185, 30, 'charakter', 'Idle01.png');
         } else if (data && data.from === 'MapSouthWest') {
             this.createCharacter(30, 490, 'charakter', 'Idle01.png');
+        } else if (data && data.from === 'MapSouthEast') {
+            this.createCharacter(994, 250, 'charakter', 'Idle01.png');
         } else {
             // Default-Fall oder andere Szenarien
             this.createCharacter(100, 100, 'charakter', 'Idle01.png');
@@ -97,6 +99,10 @@ class MapSouth extends CharacterScene {
 
         this.createTransitionZone(1, 490, 1, 40, () => {
             this.scene.start('MapSouthWest', { charakter: this.charakter, from: 'MapSouth' });
+        });
+
+        this.createTransitionZone(1024, 250, 1, 40, () => {
+            this.scene.start('MapSouthEast', { charakter: this.charakter, from: 'MapSouth' });
         });
     }
 
