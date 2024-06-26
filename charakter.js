@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import SpeedManager from './SpeedManager';
 import CoinCounter from './CoinCounter';
 import sceneEvents from './events/EventsCenter';
+import Preloader from './scenes/Preloader';
 
 class Charakter extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
@@ -21,7 +22,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             right: Phaser.Input.Keyboard.KeyCodes.D,
             sword: Phaser.Input.Keyboard.KeyCodes.E,
             bow: Phaser.Input.Keyboard.KeyCodes.SPACE,
-            dash: Phaser.Input.Keyboard.KeyCodes.SHIFT
+            dash: Phaser.Input.Keyboard.KeyCodes.SHIFT,
+            reset: Phaser.Input.Keyboard.KeyCodes.R
         });
 
         this.healthStates = {
@@ -44,8 +46,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         // Dash Einstellungen
         this.isDashing = false; // Zustand des Dash
         this.dashSpeed = 400; // Dash-Geschwindigkeit
-        this.dashDuration = 200; // Dauer des Dashes in Millisekunden
-        this.dashCooldown = 1000; // Abklingzeit des Dashes in Millisekunden
+        this.dashDuration = 200; // Dauer des Dashes, 1000 = 1 sek
+        this.dashCooldown = 1000; // Abklingzeit des Dashes, 1000 = 1sek
 
         // Schwert-Hitbox erstellen
         this.swordHitbox = scene.add.rectangle(0, 0, 20, 10, 0xff0000, 0);
@@ -281,6 +283,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocity(0, 0);
                 animKey = 'charakter-sword';
                 this.swingSword();
+            } else if (this.customKeys.reset.isDown) {
+                this.scene.start(Preloader)
             } else {
                 this.setVelocity(0, 0);
             }

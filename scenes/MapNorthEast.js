@@ -38,7 +38,7 @@ class MapNorthEast extends CharacterScene {
 
         // Charakter erstellen oder setzen
         if (data && data.from === 'MapNorth') {
-            this.createCharacter(30, 300, 'charakter', 'Idle01.png');
+            this.createCharacter(30, 255, 'charakter', 'Idle01.png');
         } else if (data && data.from === 'MapEast') {
             this.createCharacter(935, 690, 'charakter', 'Idle01.png');
         } else {
@@ -91,7 +91,7 @@ class MapNorthEast extends CharacterScene {
         });
 
         // Übergangszone erstellen
-        this.createTransitionZone(1, 300, 1, 40, () => {
+        this.createTransitionZone(1, 260, 1, 40, () => {
             this.scene.start('MapNorth', { charakter: this.charakter, from: 'MapNorthEast' });
         });
 

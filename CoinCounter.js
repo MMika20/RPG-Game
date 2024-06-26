@@ -1,4 +1,3 @@
-// CoinCounter.js
 let coins = 0;
 
 export default {
@@ -15,7 +14,16 @@ export default {
             coins -= amount;
             return true;
         }
-        return false; // Wenn nicht genügend Coins vorhanden sind
+        return false; // If not enough coins
+    },
+
+    coinText(scene, x, y, amount) {
+        const text = scene.add.text(x, y, `+${amount}`, { fontSize: '12px', fill: '#ffffff' }).setOrigin(0.5);
+
+        // Timer to remove the text after a short time
+        scene.time.delayedCall(1000, () => {
+            text.destroy();
+        });
     },
 
     resetCoins() {

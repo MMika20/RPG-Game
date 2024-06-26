@@ -28,8 +28,8 @@ class CharacterScene extends Phaser.Scene {
     createTrader(x, y, texture, frame) {
         this.trader = new Trader(this, x, y, texture, frame);
         this.physics.add.existing(this.trader);
-        this.physics.add.overlap(this.character, this.trader, () => {
-            this.trader.interactWithCharacter(this.character);
+        this.physics.add.overlap(this.charakter, this.trader, () => {
+            this.trader.interactWithCharacter(this.charakter);
         });
     }
 
@@ -53,35 +53,23 @@ class CharacterScene extends Phaser.Scene {
     }
 
     handleSwordOrcCollision(sword, orc){
-        CoinCounter.getCoins;
         sword.disableBody(false, false);
         orc.disableBody(true, true);
-        const coins = Phaser.Math.Between(50, 200); // Zwischen 50 bis 200 Coins pro Orc
+        const coins = Phaser.Math.Between(50, 200); // Between 50 and 200 coins per orc
         CoinCounter.addCoins(coins);
         
-        const coinsText = this.add.text(orc.x, orc.y, `+${coins}`, { fontSize: '12px', fill: '#ffffff' }).setOrigin(0.5);
-
-        // Timer, um den Text nach kurzer Zeit zu entfernen
-        this.time.delayedCall(1000, () => {
-            coinsText.destroy();
-        });
+        CoinCounter.coinText(this, orc.x, orc.y, coins);
 
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
 
     handleArrowOrcCollision(arrow, orc) {
-        CoinCounter.getCoins;
         arrow.disableBody(false, true);
         orc.disableBody(true, true);
-        const coins = Phaser.Math.Between(50, 200); // Zwischen 50 bis 200 Coins pro Orc
+        const coins = Phaser.Math.Between(50, 200); // Between 50 and 200 coins per orc
         CoinCounter.addCoins(coins);
-        
-        const coinsText = this.add.text(orc.x, orc.y, `+${coins}`, { fontSize: '12px', fill: '#ffffff' }).setOrigin(0.5);
 
-        // Timer, um den Text nach kurzer Zeit zu entfernen
-        this.time.delayedCall(1000, () => {
-            coinsText.destroy();
-        });
+        CoinCounter.coinText(this, orc.x, orc.y, coins);
 
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
@@ -95,10 +83,10 @@ class CharacterScene extends Phaser.Scene {
         sceneEvents.emit('player-health-changed', charakter.health);
 
         if (charakter.health <= 0) {
-        charakter.destroy();
-        this.add.text(charakter.x, charakter.y, 'Game Over!', { fontSize: '32px'}).setOrigin('0.5');
-        this.add.text(charakter.x, charakter.y+20, 'Please Restart.', { fontSize: '16px'}).setOrigin('0.5');
-       }
+            charakter.destroy();
+            this.add.text(charakter.x, charakter.y, 'Game Over!', { fontSize: '32px'}).setOrigin('0.5');
+            this.add.text(charakter.x, charakter.y + 20, 'Please Restart.', { fontSize: '16px'}).setOrigin('0.5');
+        }
     }
 
     updateCharacterAndOrcs() {
