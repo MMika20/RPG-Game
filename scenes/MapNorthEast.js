@@ -1,24 +1,24 @@
-// MapEast.js
+// MapNorthEast.js
 import Phaser from 'phaser';
 import CharacterScene from './CharacterScene';
 import createCharakterAnims from '../anims/createCharakterAnims';
 import createOrcAnims from '../anims/createOrcAnims';
 import Orc from '../Orc';
 
-class MapEast extends CharacterScene {
+class MapNorthEast extends CharacterScene {
     constructor() {
-        super('MapEast');
+        super('MapNorthEast');
         this.orcs = null;
     }
 
     create(data) {
         // Spezifische Szene Implementierungen
-        const map = this.make.tilemap({ key: "mapEast", tileWidth: 64, tileHeight: 45 });
-        const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");
+        const map2 = this.make.tilemap({ key: "mapNorthEast", tileWidth: 64, tileHeight: 45 });
+        const tileset = map2.addTilesetImage("RPG_Map_Tileset2", "tiles2");
 
         // Ground-Layer erstellen und Kollisionen aktivieren
-        map.createLayer("Ground", tileset, 0, 0);
-        const objectLayer = map.createLayer("Objects", tileset, 0, 0);
+        map2.createLayer("Ground", tileset, 0, 0);
+        const objectLayer = map2.createLayer("Objects", tileset, 0, 0);
 
         // Setze die Kollisionseigenschaften für die Objektschicht
         objectLayer.setCollisionByProperty({ collides: true });
@@ -37,12 +37,10 @@ class MapEast extends CharacterScene {
         }
 
         // Charakter erstellen oder setzen
-        if (data && data.from === 'MainMap') {
-            this.createCharacter(30, 615, 'charakter', 'Idle01.png');
-        } else if (data && data.from === 'MapSouthEast') {
-            this.createCharacter(745, 690, 'charakter', 'Idle01.png');
-        } else if (data && data.from === 'MapNorthEast') {
-            this.createCharacter(935, 30, 'charakter', 'Idle01.png');
+        if (data && data.from === 'MapNorth') {
+            this.createCharacter(30, 300, 'charakter', 'Idle01.png');
+        } else if (data && data.from === 'MapEast') {
+            this.createCharacter(935, 690, 'charakter', 'Idle01.png');
         } else {
             // Default-Fall oder andere Szenarien
             this.createCharacter(100, 100, 'charakter', 'Idle01.png');
@@ -93,16 +91,12 @@ class MapEast extends CharacterScene {
         });
 
         // Übergangszone erstellen
-        this.createTransitionZone(1, 615, 1, 40, () => {
-            this.scene.start('MainMap', { charakter: this.charakter, from: 'MapEast' });
+        this.createTransitionZone(1, 300, 1, 40, () => {
+            this.scene.start('MapNorth', { charakter: this.charakter, from: 'MapNorthEast' });
         });
 
-        this.createTransitionZone(745, 720, 40, 1, () => {
-            this.scene.start('MapSouthEast', { charakter: this.charakter, from: 'MapEast' });
-        });
-
-        this.createTransitionZone(935, 1, 40, 1, () => {
-            this.scene.start('MapNorthEast', { charakter: this.charakter, from: 'MapEast' });
+        this.createTransitionZone(935, 720, 40, 1, () => {
+            this.scene.start('MapEast', { charakter: this.charakter, from: 'MapNorthEast' });
         });
     }
 
@@ -111,4 +105,4 @@ class MapEast extends CharacterScene {
     }
 }
 
-export default MapEast;
+export default MapNorthEast;

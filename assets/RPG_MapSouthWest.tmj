@@ -121,9 +121,80 @@
          "width":64,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":3,
+         "name":"Wall",
+         "objects":[
+                {
+                 "height":0,
+                 "id":1,
+                 "name":"",
+                 "polygon":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":15,
+                         "y":5.66666666666666
+                        }, 
+                        {
+                         "x":19.3333333333333,
+                         "y":30.6666666666667
+                        }, 
+                        {
+                         "x":12,
+                         "y":41.3333333333333
+                        }, 
+                        {
+                         "x":6.66666666666669,
+                         "y":42.6666666666667
+                        }, 
+                        {
+                         "x":8,
+                         "y":52.6666666666667
+                        }, 
+                        {
+                         "x":-2.33333333333331,
+                         "y":55.3333333333333
+                        }, 
+                        {
+                         "x":-14.6666666666667,
+                         "y":51.6666666666667
+                        }, 
+                        {
+                         "x":-13.6666666666667,
+                         "y":45
+                        }, 
+                        {
+                         "x":-22.6666666666667,
+                         "y":34
+                        }, 
+                        {
+                         "x":-24,
+                         "y":13
+                        }, 
+                        {
+                         "x":-13,
+                         "y":3
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":297.333333333333,
+                 "y":129.666666666667
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":3,
- "nextobjectid":1,
+ "nextlayerid":4,
+ "nextobjectid":2,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",
@@ -882,11 +953,65 @@
                 }, 
                 {
                  "id":82,
+                 "objectgroup":
+                    {
+                     "draworder":"index",
+                     "id":2,
+                     "name":"",
+                     "objects":[
+                            {
+                             "height":0,
+                             "id":1,
+                             "name":"",
+                             "polygon":[
+                                    {
+                                     "x":0,
+                                     "y":0
+                                    }, 
+                                    {
+                                     "x":4.9375,
+                                     "y":1.4375
+                                    }, 
+                                    {
+                                     "x":7.875,
+                                     "y":5.5
+                                    }, 
+                                    {
+                                     "x":9.4375,
+                                     "y":8.875
+                                    }, 
+                                    {
+                                     "x":10.875,
+                                     "y":13.625
+                                    }, 
+                                    {
+                                     "x":-0.125,
+                                     "y":13.75
+                                    }],
+                             "properties":[
+                                    {
+                                     "name":"collides",
+                                     "type":"bool",
+                                     "value":true
+                                    }],
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":0,
+                             "x":0.125,
+                             "y":2.25
+                            }],
+                     "opacity":1,
+                     "type":"objectgroup",
+                     "visible":true,
+                     "x":0,
+                     "y":0
+                    },
                  "properties":[
                         {
                          "name":"collides",
                          "type":"bool",
-                         "value":true
+                         "value":false
                         }]
                 }, 
                 {

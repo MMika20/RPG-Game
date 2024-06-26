@@ -41,6 +41,12 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.isSwingingSword = false;
         this.speed = SpeedManager.getSpeed();
 
+        // Dash Einstellungen
+        this.isDashing = false; // Zustand des Dash
+        this.dashSpeed = 400; // Dash-Geschwindigkeit
+        this.dashDuration = 200; // Dauer des Dashes in Millisekunden
+        this.dashCooldown = 1000; // Abklingzeit des Dashes in Millisekunden
+
         // Schwert-Hitbox erstellen
         this.swordHitbox = scene.add.rectangle(0, 0, 20, 10, 0xff0000, 0);
         scene.physics.add.existing(this.swordHitbox);
@@ -51,86 +57,94 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.swordHitboxGroup = scene.physics.add.group(this.swordHitbox);
     }
 
-swingSword() {
-    if (this.isSwingingSword || this.healthState === this.healthStates.DAMAGE) {
-        return;
-    }
-
-    this.isSwingingSword = true;
-    this.anims.play('charakter-sword');
-
-    // Hitbox positionieren und aktivieren
-    this.updateSwordHitbox();
-    this.swordHitbox.body.enable = true;
-
-    this.once('animationcomplete', (animation) => {
-        if (animation.key === 'charakter-sword') {
-            this.isSwingingSword = false;
-            this.swordHitbox.body.enable = false; // Hitbox deaktivieren
-            this.swordHitbox.setPosition(-100, -100); // Setze Hitbox außerhalb der Spielwelt
-        }
-    });
-
-
-    }
-    dash() {
-        if (this.healthState === this.healthStates.DAMAGE || this.healthState === this.healthStates.DEAD) {
+    swingSword() {
+        if (this.isSwingingSword || this.healthState === this.healthStates.DAMAGE) {
             return;
         }
-    
-        const dashSpeed = 400; // Beispiel für die Dash-Geschwindigkeit
-        const dashDuration = 200; // Beispiel für die Dauer des Dashes in Millisekunden
-    
-        let velocityX = 0;
-        let velocityY = 0;
-    
+
+        this.isSwingingSword = true;
+        this.anims.play('charakter-sword');
+
+        // Hitbox positionieren und aktivieren
+        this.updateSwordHitbox();
+        this.swordHitbox.body.enable = true;
+
+        this.once('animationcomplete', (animation) => {
+            if (animation.key === 'charakter-sword') {
+                this.isSwingingSword = false;
+                this.swordHitbox.body.enable = false; // Hitbox deaktivieren
+                this.swordHitbox.setPosition(-100, -100); // Setze Hitbox außerhalb der Spielwelt
+            }
+        });
+    }
+
+    dash() {
+        if (this.isDashing || this.scene.time.now - this.lastDashTime < this.dashCooldown) {
+            return;
+        }
+
+        this.isDashing = true;
+        this.lastDashTime = this.scene.time.now;
+
+        const dashDirection = new Phaser.Math.Vector2(0, 0);
+
+        if (this.customKeys.left.isDown) {
+            dashDirection.x = -1;
+        } else if (this.customKeys.right.isDown) {
+            dashDirection.x = 1;
+        } else if (this.customKeys.up.isDown) {
+            dashDirection.y = -1;
+        } else if (this.customKeys.down.isDown) {
+            dashDirection.y = 1;
+        } else {
+            // Falls keine Richtungstaste gedrückt ist, verwende die letzte Richtung
+            switch (this.lastDirection) {
+                case 'left':
+                    dashDirection.x = -1;
+                    break;
+                case 'right':
+                    dashDirection.x = 1;
+                    break;
+                case 'up':
+                    dashDirection.y = -1;
+                    break;
+                case 'down':
+                    dashDirection.y = 1;
+                    break;
+            }
+        }
+
+        dashDirection.normalize();
+
+        this.setVelocity(dashDirection.x * this.dashSpeed, dashDirection.y * this.dashSpeed);
+
+        this.scene.time.delayedCall(this.dashDuration, () => {
+            this.isDashing = false;
+            this.setVelocity(0, 0); // Setze die Geschwindigkeit auf Null, um den Dash zu beenden
+        });
+    }
+
+    updateSwordHitbox() {
+        let offsetX = 0, offsetY = 0;
+        const hitboxWidth = 20, hitboxHeight = 10;
+
         switch (this.lastDirection) {
             case 'left':
-                velocityX = -dashSpeed;
+                offsetX = -hitboxWidth;
                 break;
             case 'right':
-                velocityX = dashSpeed;
+                offsetX = hitboxWidth;
                 break;
             case 'up':
-                velocityY = -dashSpeed;
+                offsetY = -hitboxHeight;
                 break;
             case 'down':
-                velocityY = dashSpeed;
+                offsetY = hitboxHeight;
                 break;
         }
-    
-        this.setVelocity(velocityX, velocityY);
-    
-        // Setze einen Timer, um den Dash nach der angegebenen Dauer zu beenden
-        this.scene.time.delayedCall(dashDuration, () => {
-            this.setVelocity(0, 0); // Setze die Geschwindigkeit auf Null, um den Dash zu beenden
-        }, [], this);
+
+        this.swordHitbox.setPosition(this.x + offsetX, this.y + offsetY);
     }
-
-    // In der Charakter-Klasse
-
-updateSwordHitbox() {
-    let offsetX = 0, offsetY = 0;
-    const hitboxWidth = 20, hitboxHeight = 10;
-
-    switch (this.lastDirection) {
-        case 'left':
-            offsetX = -hitboxWidth;
-            break;
-        case 'right':
-            offsetX = hitboxWidth;
-            break;
-        case 'up':
-            offsetY = -hitboxHeight;
-            break;
-        case 'down':
-            offsetY = hitboxHeight;
-            break;
-    }
-
-    this.swordHitbox.setPosition(this.x + offsetX, this.y + offsetY);
-}
-
 
     get health() {
         return this._health;
@@ -227,11 +241,6 @@ updateSwordHitbox() {
             this.canShoot = true;
         }
     }
-/*
-    increaseSpeed() {
-        this.SpeedManager.increaseSpeed(50); // Beispielhafte Erhöhung der Geschwindigkeit um 10
-        console.log(`Character speed increased to ${this.speed}`);
-    }*/
 
     update() {
         if (this.healthState === this.healthStates.DAMAGE || this.healthState === this.healthStates.DEAD) {
@@ -240,40 +249,41 @@ updateSwordHitbox() {
 
         let animKey = 'charakter-idle';
 
-        if (this.customKeys.left.isDown) {
-            this.setVelocity(-this.speed, 0);
-            this.scaleX = -1;
-            this.body.offset.x = 56;
-            animKey = 'charakter-walk';
-            this.lastDirection = 'left';
-        } else if (this.customKeys.right.isDown) {
-            this.setVelocity(this.speed, 0);
-            this.scaleX = 1;
-            this.body.offset.x = 44;
-            animKey = 'charakter-walk';
-            this.lastDirection = 'right';
-        } else if (this.customKeys.up.isDown) {
-            this.setVelocity(0, -this.speed);
-            animKey = 'charakter-walk';
-            this.lastDirection = 'up';
-        } else if (this.customKeys.down.isDown) {
-            this.setVelocity(0, this.speed);
-            animKey = 'charakter-walk';
-            this.lastDirection = 'down';
-        } else if (this.customKeys.bow.isDown) {
-            this.setVelocity(0, 0);
-            animKey = 'charakter-bow';
-            this.shootArrow();
-        } else if (this.customKeys.sword.isDown) {
-            this.setVelocity(0, 0);
-            animKey = 'charakter-sword';
-            this.swingSword();
-        } else if (this.customKeys.dash.isDown) {
-            this.setVelocity(0, 0);
+        if (this.customKeys.dash.isDown) {
             this.dash();
             animKey = 'charakter-dash';
-        }else {
-            this.setVelocity(0, 0);
+        } else {
+            if (this.customKeys.left.isDown) {
+                this.setVelocity(-this.speed, 0);
+                this.scaleX = -1;
+                this.body.offset.x = 56;
+                animKey = 'charakter-walk';
+                this.lastDirection = 'left';
+            } else if (this.customKeys.right.isDown) {
+                this.setVelocity(this.speed, 0);
+                this.scaleX = 1;
+                this.body.offset.x = 44;
+                animKey = 'charakter-walk';
+                this.lastDirection = 'right';
+            } else if (this.customKeys.up.isDown) {
+                this.setVelocity(0, -this.speed);
+                animKey = 'charakter-walk';
+                this.lastDirection = 'up';
+            } else if (this.customKeys.down.isDown) {
+                this.setVelocity(0, this.speed);
+                animKey = 'charakter-walk';
+                this.lastDirection = 'down';
+            } else if (this.customKeys.bow.isDown) {
+                this.setVelocity(0, 0);
+                animKey = 'charakter-bow';
+                this.shootArrow();
+            } else if (this.customKeys.sword.isDown) {
+                this.setVelocity(0, 0);
+                animKey = 'charakter-sword';
+                this.swingSword();
+            } else {
+                this.setVelocity(0, 0);
+            }
         }
 
         this.anims.play(animKey, true);
