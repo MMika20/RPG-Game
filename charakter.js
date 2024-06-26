@@ -12,7 +12,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
 
         this.setCollideWorldBounds(true);
-        this.body.setSize(this.width * 0.12, this.height * 0.16);
+        this.body.setSize(this.width * 0.10, this.height * 0.12);
 
         this.cursors = scene.input.keyboard.createCursorKeys();
         this.customKeys = scene.input.keyboard.addKeys({
