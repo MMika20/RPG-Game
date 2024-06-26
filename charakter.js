@@ -70,14 +70,9 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         // Hitbox positionieren und aktivieren
         this.updateSwordHitbox();
         this.swordHitbox.body.enable = true;
+        this.swordHitbox.setPosition(-100, -100); // Setze Hitbox außerhalb der Spielwelt
 
-        this.once('animationcomplete', (animation) => {
-            if (animation.key === 'charakter-sword') {
-                this.isSwingingSword = false;
-                this.swordHitbox.body.enable = false; // Hitbox deaktivieren
-                this.swordHitbox.setPosition(-100, -100); // Setze Hitbox außerhalb der Spielwelt
-            }
-        });
+        
     }
 
     dash() {
@@ -284,7 +279,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 animKey = 'charakter-sword';
                 this.swingSword();
             } else if (this.customKeys.reset.isDown) {
-                this.scene.start(Preloader)
+                this.scene.scene.restart();
             } else {
                 this.setVelocity(0, 0);
             }
