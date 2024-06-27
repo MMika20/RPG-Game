@@ -27,8 +27,6 @@ const config = {
             debug: true
         }
     },
-
-    //test2 
     
 };
 

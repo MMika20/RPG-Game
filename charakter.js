@@ -40,7 +40,6 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.canShoot = true;
         this.shootCooldown = 540;
         this.lastShootTime = 0;
-        this.isSwingingSword = false;
         this.speed = SpeedManager.getSpeed();
 
         // Dash Einstellungen
@@ -50,13 +49,15 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.dashCooldown = 1000; // Abklingzeit des Dashes, 1000 = 1sek
 
         // Schwert-Hitbox erstellen
-        this.swordHitbox = scene.add.rectangle(0, 0, 20, 10, 0xff0000, 0);
-        scene.physics.add.existing(this.swordHitbox);
-        this.swordHitbox.body.enable = false;
-        this.swordHitbox.body.setAllowGravity(false); // Schwerkraft deaktivieren
+        this.swordHitbox = scene.add.rectangle(0, 0, 20, 20, 0xff0000, 0);
+        this.scene.physics.add.existing(this.swordHitbox);
 
-        // Schwert-Hitbox zur Physik-Gruppe hinzufügen
-        this.swordHitboxGroup = scene.physics.add.group(this.swordHitbox);
+        // Initiale Deaktivierung der Hitbox
+        this.swordHitbox.setVisible(false);
+        this.swordHitbox.body.enable = false;
+        
+        // Variable zur Verfolgung des Schwertschlags
+        this.isSwingingSword = false;
     }
 
     swingSword() {
@@ -65,14 +66,40 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.isSwingingSword = true;
-        this.anims.play('charakter-sword');
 
-        // Hitbox positionieren und aktivieren
-        this.updateSwordHitbox();
+        // Positioniere die Hitbox basierend auf der letzten Blickrichtung
+        switch (this.lastDirection) {
+            case 'left':
+                this.swordHitbox.x = this.x - 10;
+                this.swordHitbox.y = this.y;
+                break;
+            case 'right':
+                this.swordHitbox.x = this.x + 10;
+                this.swordHitbox.y = this.y;
+                break;
+            case 'up':
+                this.swordHitbox.x = this.x;
+                this.swordHitbox.y = this.y - 10;
+                break;
+            case 'down':
+                this.swordHitbox.x = this.x;
+                this.swordHitbox.y = this.y + 10;
+                break;
+        }
+
+        // Aktiviere die Kollisionserkennung der Hitbox
+        this.swordHitbox.setVisible(true);
         this.swordHitbox.body.enable = true;
-        this.swordHitbox.setPosition(-100, -100); // Setze Hitbox außerhalb der Spielwelt
 
-        
+        // Deaktiviere die Hitbox nach einer kurzen Verzögerung
+        this.scene.time.delayedCall(500, () => {
+            this.swordHitbox.setVisible(false);
+            this.swordHitbox.body.enable = false;
+            this.isSwingingSword = false;
+        });
+
+        // Starte die Schwertschlag-Animation
+        this.anims.play('charakter-sword', true);
     }
 
     dash() {
@@ -119,28 +146,6 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.isDashing = false;
             this.setVelocity(0, 0); // Setze die Geschwindigkeit auf Null, um den Dash zu beenden
         });
-    }
-
-    updateSwordHitbox() {
-        let offsetX = 0, offsetY = 0;
-        const hitboxWidth = 20, hitboxHeight = 10;
-
-        switch (this.lastDirection) {
-            case 'left':
-                offsetX = -hitboxWidth;
-                break;
-            case 'right':
-                offsetX = hitboxWidth;
-                break;
-            case 'up':
-                offsetY = -hitboxHeight;
-                break;
-            case 'down':
-                offsetY = hitboxHeight;
-                break;
-        }
-
-        this.swordHitbox.setPosition(this.x + offsetX, this.y + offsetY);
     }
 
     get health() {
@@ -276,8 +281,10 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 this.shootArrow();
             } else if (this.customKeys.sword.isDown) {
                 this.setVelocity(0, 0);
-                animKey = 'charakter-sword';
-                this.swingSword();
+                if (!this.isSwingingSword) {
+                    animKey = 'charakter-sword';
+                    this.swingSword();
+                }
             } else if (this.customKeys.reset.isDown) {
                 this.scene.scene.restart();
             } else {
@@ -285,18 +292,9 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             }
         }
 
-        this.anims.play(animKey, true);
-
-        // Kollisionserkennung zwischen Schwert-Hitbox und Orks
-        this.scene.physics.world.overlap(this.swordHitbox, this.scene.orcs, this.hitOrk, null, this);
-    }
-
-    hitOrk(swordHitbox, ork) {
-        ork.destroy(); // Entfernt den Ork
-        const coins = Phaser.Math.Between(50, 200); // Zwischen 50 bis 200 Coins pro Orc
-        CoinCounter.addCoins(coins);
-
-        sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
+        if (!this.isSwingingSword) {
+            this.anims.play(animKey, true);
+        }
     }
 }
 
