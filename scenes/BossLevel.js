@@ -1,19 +1,22 @@
-// MapNorth.js
 import Phaser from 'phaser';
-import CharacterScene from './CharacterScene';
-import createCharakterAnims from '../anims/createCharakterAnims';
+import Necromancer from '../Necromancer'; // Stelle sicher, dass der Pfad korrekt ist und Necromancer existiert
+import CharacterScene from './CharacterScene'; // Stelle sicher, dass der Pfad korrekt ist und CharacterScene existiert
+import createCharakterAnims from '../anims/createCharakterAnims'; // Stelle sicher, dass der Pfad korrekt ist und createCharakterAnims existiert
+import Charakter from '../Charakter'; // Stelle sicher, dass der Pfad korrekt ist und Charakter existiert
+import createNecromancerAnims from '../anims/createNecromancerAnims'; // Stelle sicher, dass der Pfad korrekt ist und createNecromancerAnims existiert
 import createOrcAnims from '../anims/createOrcAnims';
 import Orc from '../Orc';
 
-class MapNorth extends CharacterScene {
+class BossLevel extends CharacterScene {
     constructor() {
-        super('MapNorth');
+        super('BossLevel');
+        this.necromancer = null;
         this.orcs = null;
     }
 
     create(data) {
         // Spezifische Szene Implementierungen
-        const map = this.make.tilemap({ key: "mapNorth", tileWidth: 64, tileHeight: 45 });
+        const map = this.make.tilemap({ key: "bossLevel", tileWidth: 64, tileHeight: 45 });
         const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");
 
         // Ground-Layer erstellen und Kollisionen aktivieren
@@ -37,12 +40,8 @@ class MapNorth extends CharacterScene {
         }
 
         // Charakter erstellen oder setzen
-        if (data && data.from === 'MainMap') {
-            this.createCharacter(855, 690, 'charakter', 'Idle01.png');
-        } else if (data && data.from === 'MapNorthEast') {
-            this.createCharacter(994, 250, 'charakter', 'Idle01.png');
-        } else if (data && data.from === 'MapNorthWest') {
-            this.createCharacter(30, 435, 'charakter', 'Idle01.png');
+        if (data && data.from === 'mapNorth') {
+            this.createCharacter(200, 250, 'charakter', 'Idle01.png');
         } else {
             // Default-Fall oder andere Szenarien
             this.createCharacter(100, 100, 'charakter', 'Idle01.png');
@@ -50,18 +49,11 @@ class MapNorth extends CharacterScene {
 
         const arrowGroup = this.createArrowGroup();
         this.charakter.setArrow(arrowGroup);
-
+        
         // Orc-Gruppe erstellen und Kollisionen konfigurieren
         this.orcs = this.physics.add.group({
             classType: Orc
         });
-        this.orcs.create(215, 100, 'enemy');
-        this.orcs.create(180, 100, 'enemy');
-        this.orcs.create(215, 140, 'enemy');
-        this.orcs.create(100, 190, 'enemy');
-        this.orcs.create(100, 240, 'enemy');
-        this.orcs.create(100, 600, 'enemy');
-        this.orcs.create(130, 600, 'enemy');
 
         const orcGroup = this.createOrcGroup();
         this.physics.add.collider(this.orcs, objectLayer); // Kollisionsabfrage mit Objektschicht
@@ -75,12 +67,17 @@ class MapNorth extends CharacterScene {
         // Kollisionsabfrage zwischen Charakter und Objektschicht
         this.physics.add.collider(this.charakter, objectLayer);
 
+        // Necromancer erstellen
+        this.necromancer = new Necromancer(this, 300, 300, 'necromancer'); // Überprüfe, ob Necromancer korrekt importiert und definiert ist
+        this.physics.add.collider(this.necromancer, objectLayer); // Kollisionsabfrage mit Objektschicht
+
         // Kamera Einstellungen
         this.cameras.main.startFollow(this.charakter);
         this.cameras.main.setZoom(3);
 
         // Animationen zuweisen
         createCharakterAnims(this.anims);
+        createNecromancerAnims(this.anims);
         createOrcAnims(this.anims);
 
         // Orc Animation
@@ -92,28 +89,19 @@ class MapNorth extends CharacterScene {
         this.physics.add.collider(this.orcs, this.charakter, (charakter, orc) => {
             this.handlePlayerOrcCollision(charakter, orc);
         });
-
-        // Übergangszone erstellen
-        this.createTransitionZone(855, 720, 40, 1, () => {
-            this.scene.start('MainMap', { charakter: this.charakter, from: 'MapNorth' });
-        });
-
-        this.createTransitionZone(1, 440, 1, 40, () => {
-            this.scene.start('MapNorthWest', { charakter: this.charakter, from: 'MapNorth' });
-        });
-
-        this.createTransitionZone(1024, 250, 1, 40, () => {
-            this.scene.start('MapNorthEast', { charakter: this.charakter, from: 'MapNorth' });
-        });
-
-        this.createTransitionZone(470, 1, 40, 1, () => {
-            this.scene.start('BossLevel', { charakter: this.charakter, from: 'MapNorth' });
-        });
     }
 
     update(time, delta) {
         this.updateCharacterAndOrcs();
     }
+
+    // Beispiel für Kollisionsbehandlung zwischen Charakter und Necromancer
+    handlePlayerNecromancerCollision(charakter, necromancer) {
+        // Beispielhafte Logik für die Interaktion zwischen Charakter und Necromancer
+        if (!charakter.isSwingingSword) { // Stelle sicher, dass charakter.isSwingingSword oder eine entsprechende Eigenschaft existiert
+            charakter.handleDamage(necromancer.body.velocity); // Stelle sicher, dass charakter.handleDamage oder eine entsprechende Methode existiert
+        }
+    }
 }
 
-export default MapNorth;
+export default BossLevel;

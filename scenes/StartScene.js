@@ -12,7 +12,7 @@ class StartScene extends Phaser.Scene {
         this.add.text(370, 430, 'Click to Start!', { fontSize: '35px' });
         this.add.text(1, 1, '-W,A,S,D-     zum Laufen')
         this.add.text(1, 15, '-Leertaste-   zum Schießen')
-        this.add.text(1, 30, '-E- (halten)  Schwertschlag');
+        this.add.text(1, 30, '-E-           Schwertschlag');
         this.add.text(1, 45, '-Shift-       Dash');
         this.input.on('pointerdown', () => {
             this.scene.stop('StartScene');
