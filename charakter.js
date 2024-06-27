@@ -49,7 +49,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.dashCooldown = 1000; // Abklingzeit des Dashes, 1000 = 1sek
 
         // Schwert-Hitbox erstellen
-        this.swordHitbox = scene.add.rectangle(0, 0, 20, 20, 0xff0000, 0);
+        this.swordHitbox = scene.add.rectangle(0, 0, 30, 30, 0xff0000, 0);
         this.scene.physics.add.existing(this.swordHitbox);
 
         // Initiale Deaktivierung der Hitbox
