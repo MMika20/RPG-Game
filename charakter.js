@@ -1,8 +1,5 @@
 import Phaser from 'phaser';
 import SpeedManager from './SpeedManager';
-import CoinCounter from './CoinCounter';
-import sceneEvents from './events/EventsCenter';
-import Preloader from './scenes/Preloader';
 
 class Charakter extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
@@ -49,7 +46,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.dashCooldown = 1000; // Abklingzeit des Dashes, 1000 = 1sek
 
         // Schwert-Hitbox erstellen
-        this.swordHitbox = scene.add.rectangle(0, 0, 30, 30, 0xff0000, 0);
+        this.swordHitbox = scene.add.rectangle(0, 0, 20, 20, 0xff0000, 0);
         this.scene.physics.add.existing(this.swordHitbox);
 
         // Initiale Deaktivierung der Hitbox
@@ -68,31 +65,23 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.isSwingingSword = true;
 
         // Positioniere die Hitbox basierend auf der letzten Blickrichtung
-        switch (this.lastDirection) {
-            case 'left':
-                this.swordHitbox.x = this.x - 10;
-                this.swordHitbox.y = this.y;
-                break;
-            case 'right':
-                this.swordHitbox.x = this.x + 10;
-                this.swordHitbox.y = this.y;
-                break;
-            case 'up':
-                this.swordHitbox.x = this.x;
-                this.swordHitbox.y = this.y - 10;
-                break;
-            case 'down':
-                this.swordHitbox.x = this.x;
-                this.swordHitbox.y = this.y + 10;
-                break;
-        }
+        const offsets = {
+            left: { x: -10, y: 0 },
+            right: { x: 10, y: 0 },
+            up: { x: 0, y: -10 },
+            down: { x: 0, y: 10 }
+        };
+        
+        const offset = offsets[this.lastDirection];
+        this.swordHitbox.setPosition(this.x + offset.x, this.y + offset.y);
+        
 
         // Aktiviere die Kollisionserkennung der Hitbox
         this.swordHitbox.setVisible(true);
         this.swordHitbox.body.enable = true;
 
         // Deaktiviere die Hitbox nach einer kurzen Verzögerung
-        this.scene.time.delayedCall(500, () => {
+        this.scene.time.delayedCall(7, () => {
             this.swordHitbox.setVisible(false);
             this.swordHitbox.body.enable = false;
             this.isSwingingSword = false;
@@ -281,10 +270,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 this.shootArrow();
             } else if (this.customKeys.sword.isDown) {
                 this.setVelocity(0, 0);
-                if (!this.isSwingingSword) {
-                    animKey = 'charakter-sword';
-                    this.swingSword();
-                }
+                this.swingSword();
+                animKey = 'charakter-sword'
             } else if (this.customKeys.reset.isDown) {
                 this.scene.scene.restart();
             } else {

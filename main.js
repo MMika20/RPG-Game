@@ -12,7 +12,7 @@ import MapNorth from './scenes/MapNorth.js';
 import MapNorthWest from './scenes/MapNorthWest.js';
 import BossLevel from './scenes/BossLevel.js';
 import Preloader from './scenes/Preloader.js'
-import MainScene from './scenes/MainScene.js';
+
 
 
 const config = {

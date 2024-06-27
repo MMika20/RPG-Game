@@ -54,11 +54,11 @@ class CharacterScene extends Phaser.Scene {
 
     handleSwordOrcCollision(swordHitbox, orc) {
         // Deaktiviere die Hitbox des Schwerts und mache sie unsichtbar
-        swordHitbox.setVisible(false);
+        
         swordHitbox.body.enable = false;
     
         // Zerstöre den Orc
-        orc.disableBody(true, true);
+        orc.destroy(true, true);
     
         // Füge Münzen hinzu und aktualisiere die Anzeige
         const coins = Phaser.Math.Between(50, 200);
