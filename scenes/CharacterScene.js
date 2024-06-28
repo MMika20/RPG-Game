@@ -5,7 +5,7 @@ import Charakter from '../Charakter.js';
 import Orc from '../Orc.js';
 import Trader from '../Trader.js';
 import Necromancer from '../Necromancer.js';
-import SpeedManager from '../SpeedManager.js';
+import DamageManager from '../DamageManager.js';
 
 class CharacterScene extends Phaser.Scene {
     constructor(key) {
@@ -14,6 +14,7 @@ class CharacterScene extends Phaser.Scene {
         this.cursors = null;
         this.orcs = null;
         this.necromancer = null;
+        this.dmg = DamageManager.getDamage();
     }
 
     createCharacter(x, y, texture, frame) {
@@ -106,8 +107,8 @@ class CharacterScene extends Phaser.Scene {
     }
 
     handleNecromancerArrowCollision(necromancer, arrow) {
-        necromancer.handleDamage(1); // Damage vom Pfeil
         arrow.destroy();
+        necromancer.handleDamage(DamageManager.getDamage()); // Damage vom Pfeil
         
         if (necromancer.health <= 0) {
             necromancer.disableBody(true, true);

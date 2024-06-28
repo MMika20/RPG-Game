@@ -1,4 +1,4 @@
-let coins = 0;
+let coins = 3500;
 
 export default {
     getCoins() {

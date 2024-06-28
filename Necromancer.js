@@ -16,8 +16,16 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
         this._health = 20;
         this.lastShootTime = 0;
         this.shootCooldown = 2000; // 2 Sekunden
+
     }
 
+    create(){
+        // Ground-Layer erstellen und Kollisionen aktivieren
+        const objectLayer = map.createLayer("Objects", tileset, 0, 0);
+        objectLayer.setCollisionByProperty({ collides: true });
+
+    }
+    
     get health() {
         return this._health;
     }
@@ -29,6 +37,7 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
         vec.normalize();
 
         const angle = vec.angle();
+
         const fireball = this.scene.physics.add.sprite(this.x, this.y, 'fireball');
         fireball.setRotation(angle);
         fireball.setVelocity(vec.x * 200, vec.y * 200); // Geschwindigkeit des Fireballs
@@ -52,7 +61,7 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
             this.destroy; // Zerstöre die Necromancer-Instanz
             
             // Timer für die Teleportation des Charakters starten
-            this.scene.time.delayedCall(2000, () => {
+            this.scene.time.delayedCall(5000, () => {
                 const charakter = this.scene.charakter;
                 if (charakter) {
 

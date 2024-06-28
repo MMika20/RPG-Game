@@ -4,11 +4,13 @@ import CharacterScene from './CharacterScene';
 import createCharakterAnims from '../anims/createCharakterAnims';
 import createOrcAnims from '../anims/createOrcAnims';
 import Orc from '../Orc';
+import Trader from '../Trader';
 
 class MapNorthEast extends CharacterScene {
     constructor() {
         super('MapNorthEast');
         this.orcs = null;
+        this.trader = null;
     }
 
     create(data) {
@@ -76,6 +78,14 @@ class MapNorthEast extends CharacterScene {
         // Kamera Einstellungen
         this.cameras.main.startFollow(this.charakter);
         this.cameras.main.setZoom(3);
+
+        // Trader + Kollision erstellt
+        this.trader = new Trader(this, 940, 430, 'trader');
+        this.add.text(940,410,'3000 Coins = Damage++', { fontSize: '8px'}).setOrigin(0.5);
+        this.physics.add.existing(this.trader);
+        this.physics.add.overlap(this.charakter, this.trader, () => {
+            this.trader.interactWithCharacterDamage(this.charakter);
+        });
 
         // Animationen zuweisen
         createCharakterAnims(this.anims);

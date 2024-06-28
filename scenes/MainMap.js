@@ -4,7 +4,7 @@ import createCharakterAnims from '../anims/createCharakterAnims';
 import createOrcAnims from '../anims/createOrcAnims';
 import Orc from '../Orc';
 import Trader from '../Trader';
-import CoinCounter from '../CoinCounter';
+
 
 class MainMap extends CharacterScene {
     constructor() {
@@ -82,7 +82,7 @@ class MainMap extends CharacterScene {
         this.add.text(650,40,'2000 Coins = Movementspeed++', { fontSize: '8px'}).setOrigin(0.5);
         this.physics.add.existing(this.trader);
         this.physics.add.overlap(this.charakter, this.trader, () => {
-            this.trader.interactWithCharacter(this.charakter);
+            this.trader.interactWithCharacterSpeed(this.charakter);
         });
 
         // Kamera Einstellungen
