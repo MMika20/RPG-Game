@@ -4,6 +4,7 @@ import CoinCounter from '../CoinCounter.js';
 import Charakter from '../Charakter.js';
 import Orc from '../Orc.js';
 import Trader from '../Trader.js';
+import Necromancer from '../Necromancer.js';
 import SpeedManager from '../SpeedManager.js';
 
 class CharacterScene extends Phaser.Scene {
@@ -12,6 +13,7 @@ class CharacterScene extends Phaser.Scene {
         this.charakter = null;
         this.cursors = null;
         this.orcs = null;
+        this.necromancer = null;
     }
 
     createCharacter(x, y, texture, frame) {
@@ -31,6 +33,13 @@ class CharacterScene extends Phaser.Scene {
         this.physics.add.overlap(this.charakter, this.trader, () => {
             this.trader.interactWithCharacter(this.charakter);
         });
+    }
+
+    createNecromancer(x, y, texture, frame) {
+        this.necromancer = new Necromancer(this, x, y, texture, frame);
+        this.physics.add.existing(this.necromancer);
+        this.necromancer.setCollideWorldBounds(true);
+        this.add.existing(this.necromancer);
     }
 
     createArrowGroup() {
@@ -96,6 +105,19 @@ class CharacterScene extends Phaser.Scene {
         }
     }
 
+    handleNecromancerArrowCollision(necromancer, arrow) {
+        necromancer.handleDamage(1); // Damage vom Pfeil
+        arrow.destroy();
+        
+        if (necromancer.health <= 0) {
+            necromancer.disableBody(true, true);
+            const coins = Phaser.Math.Between(4000, 6000);
+            CoinCounter.addCoins(coins);
+            CoinCounter.coinText(this, necromancer.x, necromancer.y, coins);
+            sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
+        }
+    }
+
     updateCharacterAndOrcs() {
         if (this.charakter) {
             this.charakter.update();
@@ -107,6 +129,10 @@ class CharacterScene extends Phaser.Scene {
                     orc.idle();
                 }
             });
+        }
+
+        if (this.necromancer) {
+            this.necromancer.update();
         }
     }
 }

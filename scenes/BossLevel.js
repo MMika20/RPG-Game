@@ -1,41 +1,38 @@
 import Phaser from 'phaser';
-import Necromancer from '../Necromancer'; // Stelle sicher, dass der Pfad korrekt ist und Necromancer existiert
-import CharacterScene from './CharacterScene'; // Stelle sicher, dass der Pfad korrekt ist und CharacterScene existiert
-import createCharakterAnims from '../anims/createCharakterAnims'; // Stelle sicher, dass der Pfad korrekt ist und createCharakterAnims existiert
-import Charakter from '../Charakter'; // Stelle sicher, dass der Pfad korrekt ist und Charakter existiert
-import createNecromancerAnims from '../anims/createNecromancerAnims'; // Stelle sicher, dass der Pfad korrekt ist und createNecromancerAnims existiert
-import createOrcAnims from '../anims/createOrcAnims';
+import CharacterScene from './CharacterScene';
+import Necromancer from '../Necromancer';
+import createCharakterAnims from '../anims/createCharakterAnims';
+import createNecromancerAnims from '../anims/createNecromancerAnims';
 import Orc from '../Orc';
+import createOrcAnims from '../anims/createOrcAnims';
+import HealthBar from '../HealthBar'; // Annahme: HealthBar-Klasse muss noch implementiert werden
 
 class BossLevel extends CharacterScene {
     constructor() {
         super('BossLevel');
         this.necromancer = null;
         this.orcs = null;
+        this.healthBar = null;
+        this.fireballGroup = null;
     }
 
     create(data) {
-        // Spezifische Szene Implementierungen
+        // Initialisierungen und Kollisionen
         const map = this.make.tilemap({ key: "bossLevel", tileWidth: 64, tileHeight: 45 });
         const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");
-
-        // Ground-Layer erstellen und Kollisionen aktivieren
         map.createLayer("Ground", tileset, 0, 0);
         const objectLayer = map.createLayer("Objects", tileset, 0, 0);
-
-        // Setze die Kollisionseigenschaften für die Objektschicht
         objectLayer.setCollisionByProperty({ collides: true });
 
-        // Gemeinsame Initialisierungen
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Entfernen aller existierenden Orks und des Charakters
+        // Entfernen aller existierenden Charaktere, Orks, Necromancer und HealthBar
         if (this.charakter) {
             this.charakter.destroy();
             this.charakter = null;
         }
         if (this.orcs) {
-            this.orcs.destroy(true, true); // true, true entfernt auch das Physics-Body und zerstört das Spielobjekt
+            this.orcs.destroy(true, true);
             this.orcs = null;
         }
 
@@ -43,64 +40,75 @@ class BossLevel extends CharacterScene {
         if (data && data.from === 'MapNorth') {
             this.createCharacter(532, 600, 'charakter', 'Idle01.png');
         } else {
-            // Default-Fall oder andere Szenarien
             this.createCharacter(100, 100, 'charakter', 'Idle01.png');
         }
 
         const arrowGroup = this.createArrowGroup();
         this.charakter.setArrow(arrowGroup);
+
+        // Orks und Kollisionen
+        this.orcs = this.physics.add.group({ classType: Orc });
+        const orcGroup = this.createOrcGroup();
+
+        // Fireball-Gruppe erstellen
+        this.fireballGroup = this.physics.add.group({
+            classType: Phaser.Physics.Arcade.Sprite,
+            createCallback: fireball => {
+                fireball.body.setSize(fireball.width * 0.8, fireball.height * 0.8); // Anpassung der Hitbox-Größe
+                fireball.setCollideWorldBounds(true);
+
+            }
+        });
         
-        // Orc-Gruppe erstellen und Kollisionen konfigurieren
-        this.orcs = this.physics.add.group({
-            classType: Orc
+
+        this.physics.add.collider(this.fireballGroup, objectLayer, (fireball, layer) => {
+            fireball.destroy(); // Fireball zerstören, wenn er auf die Objektschicht trifft
         });
 
-        const orcGroup = this.createOrcGroup();
-    
+        // Necromancer erstellen und Kollisionen
+        this.necromancer = new Necromancer(this, 532, 200, 'necromancer');
+        this.physics.add.collider(this.necromancer, objectLayer);
 
-        // Pfeil-Gruppe erstellen und Kollisionen konfigurieren
-        this.physics.add.collider(arrowGroup, this.orcs, this.handleArrowOrcCollision, undefined, this); // Kollisionsabfrage zwischen Pfeilen und Orcs
-        this.physics.add.collider(arrowGroup, objectLayer, this.handleArrowWallCollision, undefined, this); // Kollisionsabfrage zwischen Pfeilen und Objektschicht
-        this.physics.add.collider(this.charakter.swordHitbox, this.orcs, this.handleSwordOrcCollision, null, this); // Kollisionabfrage zwischen Schwert und Orc
+        // HealthBar für Necromancer erstellen
+        this.healthBar = new HealthBar(this, this.necromancer.x, this.necromancer.y - 20, this.necromancer.health);
 
-        // Kollisionsabfrage zwischen Charakter und Objektschicht
-        this.physics.add.collider(this.charakter, objectLayer);
-
-        // Necromancer erstellen
-        this.necromancer = new Necromancer(this, 532, 200, 'necromancer'); // Überprüfe, ob Necromancer korrekt importiert und definiert ist
-        this.physics.add.collider(this.necromancer, objectLayer); // Kollisionsabfrage mit Objektschicht
-
-        // Kamera Einstellungen
         this.cameras.main.startFollow(this.charakter);
         this.cameras.main.setZoom(2);
 
-        // Animationen zuweisen
+        // Animationen erstellen
         createCharakterAnims(this.anims);
         createNecromancerAnims(this.anims);
         createOrcAnims(this.anims);
 
-        // Orc Animation
         orcGroup.getChildren().forEach(orc => {
             orc.play('enemy-walk');
         });
 
-        // Kollisionsbehandlung zwischen Charakter und Orcs
-        this.physics.add.collider(this.orcs, this.charakter, (charakter, orc) => {
-            this.handlePlayerOrcCollision(charakter, orc);
-        });
+        this.physics.add.collider(arrowGroup, this.necromancer, this.handleNecromancerArrowCollision, undefined, this);
+        this.physics.add.collider(arrowGroup, objectLayer, this.handleArrowWallCollision, undefined, this);
+        this.physics.add.collider(this.charakter, objectLayer);
+        this.physics.add.collider(this.charakter, this.necromancer, this.handlePlayerNecromancerCollision, null, this);
+        this.physics.add.collider(this.charakter, this.fireballGroup, this.handleFireballCollision, undefined, this)
+        
     }
 
     update(time, delta) {
         this.updateCharacterAndOrcs();
-    }
-
-    // Beispiel für Kollisionsbehandlung zwischen Charakter und Necromancer
-    handlePlayerNecromancerCollision(charakter, necromancer) {
-        // Beispielhafte Logik für die Interaktion zwischen Charakter und Necromancer
-        if (!charakter.isSwingingSword) { // Stelle sicher, dass charakter.isSwingingSword oder eine entsprechende Eigenschaft existiert
-            charakter.handleDamage(necromancer.body.velocity); // Stelle sicher, dass charakter.handleDamage oder eine entsprechende Methode existiert
+        if (this.necromancer) {
+            this.necromancer.preUpdate(time, delta);
+            if (this.healthBar) {
+                this.healthBar.setPosition(this.necromancer.x, this.necromancer.y - 20);
+                this.healthBar.setPercentage(this.necromancer.health / 20); // Annahme: 20 ist der maximale Gesundheitswert des Necromancers
+            }
         }
     }
+
+    handlePlayerNecromancerCollision(charakter, necromancer) {
+        if (!charakter.isSwingingSword) {
+            charakter.handleDamage(necromancer.body.velocity);
+        }
+    }
+    
 }
 
 export default BossLevel;
