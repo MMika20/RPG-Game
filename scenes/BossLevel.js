@@ -40,8 +40,8 @@ class BossLevel extends CharacterScene {
         }
 
         // Charakter erstellen oder setzen
-        if (data && data.from === 'mapNorth') {
-            this.createCharacter(200, 250, 'charakter', 'Idle01.png');
+        if (data && data.from === 'MapNorth') {
+            this.createCharacter(532, 600, 'charakter', 'Idle01.png');
         } else {
             // Default-Fall oder andere Szenarien
             this.createCharacter(100, 100, 'charakter', 'Idle01.png');
@@ -56,8 +56,7 @@ class BossLevel extends CharacterScene {
         });
 
         const orcGroup = this.createOrcGroup();
-        this.physics.add.collider(this.orcs, objectLayer); // Kollisionsabfrage mit Objektschicht
-        this.physics.add.collider(this.orcs, this.orcs); // Kollisionsabfrage innerhalb der Orc-Gruppe
+    
 
         // Pfeil-Gruppe erstellen und Kollisionen konfigurieren
         this.physics.add.collider(arrowGroup, this.orcs, this.handleArrowOrcCollision, undefined, this); // Kollisionsabfrage zwischen Pfeilen und Orcs
@@ -68,12 +67,12 @@ class BossLevel extends CharacterScene {
         this.physics.add.collider(this.charakter, objectLayer);
 
         // Necromancer erstellen
-        this.necromancer = new Necromancer(this, 300, 300, 'necromancer'); // Überprüfe, ob Necromancer korrekt importiert und definiert ist
+        this.necromancer = new Necromancer(this, 532, 200, 'necromancer'); // Überprüfe, ob Necromancer korrekt importiert und definiert ist
         this.physics.add.collider(this.necromancer, objectLayer); // Kollisionsabfrage mit Objektschicht
 
         // Kamera Einstellungen
         this.cameras.main.startFollow(this.charakter);
-        this.cameras.main.setZoom(3);
+        this.cameras.main.setZoom(2);
 
         // Animationen zuweisen
         createCharakterAnims(this.anims);
