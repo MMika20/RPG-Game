@@ -24,8 +24,8 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            // Hitbox anzeigen lassen
-            debug: true
+            // Hitbox anzeigen lassen [true = an | false = aus]
+            debug: false
         }
     },
     // test

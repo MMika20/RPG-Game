@@ -10,6 +10,12 @@ class GameUI extends Phaser.Scene {
         this.coinsLabel = null;
     }
 
+    preload() {
+        // Stelle sicher, dass die Texturen geladen werden
+        this.load.image('heart_full', 'path/to/heart_full.png');
+        this.load.image('heart_empty', 'path/to/heart_empty.png');
+    }
+
     create() {
         // Anzeige für Coins oben links
         this.coinsLabel = this.add.text(5, 45, 'Coins: 0', { fontSize: '16px', fill: '#ffffff' }).setScrollFactor(0);
@@ -38,13 +44,14 @@ class GameUI extends Phaser.Scene {
         sceneEvents.on('player-health-changed', this.handlePlayerHealthChanged, this);
     }
 
-
     updateCoins(coins) {
         this.coinsLabel.setText(`Coins: ${coins}`);
     }
 
     handlePlayerHealthChanged(health) {
+        console.log(`Updating hearts, new health: ${health}`); // Debugging
         this.hearts.children.each((heart, idx) => {
+            console.log(`Heart ${idx}: ${idx < health ? 'full' : 'empty'}`); // Debugging
             if (idx < health) {
                 heart.setTexture('heart_full');
             } else {

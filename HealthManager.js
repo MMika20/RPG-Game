@@ -1,6 +1,6 @@
 import GameUI from "./scenes/GameUI";
 
-let health = 7; // Startleben
+let health = 5; // Startleben
 
 const increaseHealth = (amount) => {
     health += amount;
