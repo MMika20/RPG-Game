@@ -122,8 +122,17 @@
  "tileheight":16,
  "tilesets":[
         {
+         "columns":10,
          "firstgid":1,
-         "source":"..\/..\/..\/RPG_Map_Tileset.tsx"
+         "image":"..\/..\/..\/RPG_Map_Tileset.png",
+         "imageheight":192,
+         "imagewidth":160,
+         "margin":0,
+         "name":"RPG_Map_Tileset",
+         "spacing":0,
+         "tilecount":120,
+         "tileheight":16,
+         "tilewidth":16
         }],
  "tilewidth":16,
  "type":"map",
