@@ -5,6 +5,8 @@ import SpeedManager from './SpeedManager';
 import CoinCounter from './CoinCounter';
 import DamageManager from './DamageManager';
 import CharacterScene from './scenes/CharacterScene';
+import HealthManager from './HealthManager';
+import sceneEvents from './events/EventsCenter';
 
 class Trader extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
@@ -14,8 +16,9 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
 
         this.setInteractive();
-        this.coinsRequiredSpeed = 2000; // Anzahl der benötigten Coins für das Speed-Upgrade
-        this.coinsRequiredDamage= 3000; // " für Damage-Upgrade
+        this.coinsRequiredSpeed  = 2000; // Anzahl der benötigten Coins für das Speed-Upgrade
+        this.coinsRequiredDamage = 3000; // " für Damage-Upgrade
+        this.coinsRequiredHealth = 5000; // " für Health-Upgrade
     }
 
     interactWithCharacterSpeed(character) {
@@ -28,7 +31,7 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
 
             console.log(`Character speed increased! Remaining coins: ${CoinCounter.getCoins()}`);
         } else {
-            console.log("Not enough coins to purchase speed upgrade!");
+            console.log("Not enough coins to purchase Speed-Upgrade!");
         }
     }
 
@@ -37,11 +40,22 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
             DamageManager.increaseDamage(1);
             CoinCounter.subtractCoins(this.coinsRequiredDamage);
 
-            DamageManager.increaseDamage(1);
-
             console.log(`Dmg wurde increased! Remaining coins: ${CoinCounter.getCoins()}`);
         } else {
-            console.log("Not enough coins to purchase Damage upgrade!");
+            console.log("Not enough coins to purchase Damage-Upgrade!");
+        }
+    }
+
+    interactWithCharacterHealth(character){
+        if (CoinCounter.getCoins() >= this.coinsRequiredHealth){
+            HealthManager.increaseHealth(1);
+            CoinCounter.subtractCoins(this.coinsRequiredHealth);
+
+            sceneEvents.emit('player-health-changed', HealthManager.getHealth());
+
+            console.log(`Health wurde increased! Remaining coins: ${CoinCounter.getCoins()}`);
+        } else {
+            console.log("Not enough coins to purchase Health-Upgrade!");
         }
     }
 }

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import sceneEvents from '../events/EventsCenter.js';
+import HealthManager from '../HealthManager.js';
 import CoinCounter from '../CoinCounter.js';
 
 class GameUI extends Phaser.Scene {
@@ -30,7 +31,7 @@ class GameUI extends Phaser.Scene {
                 y: 30,
                 stepX: 16
             },
-            quantity: 5
+            quantity: HealthManager.getHealth() // Anzahl der Herzensbilder
         });
 
         // Event für Änderungen der Lebenspunkte des Spielers abonnieren

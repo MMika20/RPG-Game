@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import SpeedManager from './SpeedManager';
+import HealthManager from './HealthManager';
 
 class Charakter extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
@@ -32,7 +33,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.healthState = this.healthStates.IDLE;
         this.damageTime = 0;
 
-        this._health = 5;
+        this._health = HealthManager.getHealth(); // Tatsächliche Herzen des Charakters
         this.lastDirection = 'right';
         this.canShoot = true;
         this.shootCooldown = 540;
