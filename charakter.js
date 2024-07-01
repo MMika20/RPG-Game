@@ -20,6 +20,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             left: Phaser.Input.Keyboard.KeyCodes.A,
             right: Phaser.Input.Keyboard.KeyCodes.D,
             sword: Phaser.Input.Keyboard.KeyCodes.E,
+            spin: Phaser.Input.Keyboard.KeyCodes.R,
             bow: Phaser.Input.Keyboard.KeyCodes.SPACE,
             dash: Phaser.Input.Keyboard.KeyCodes.SHIFT
         });
@@ -45,17 +46,54 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.dashSpeed = 400; // Dash-Geschwindigkeit
         this.dashDuration = 200; // Dauer des Dashes, 1000 = 1 sek
         this.dashCooldown = 1000; // Abklingzeit des Dashes, 1000 = 1sek
+        this.lastDashTime = 0;
 
         // Schwert-Hitbox erstellen
         this.swordHitbox = scene.add.rectangle(0, 0, 20, 20, 0xff0000, 0);
         this.scene.physics.add.existing(this.swordHitbox);
-
-        // Initiale Deaktivierung der Hitbox
         this.swordHitbox.setVisible(false);
         this.swordHitbox.body.enable = false;
-        
+
         // Variable zur Verfolgung des Schwertschlags
         this.isSwingingSword = false;
+
+        // Schwertwirbel Einstellungen
+        this.isSpinning = false; // Zustand des Schwertwirbels
+        this.spinSpeed = 30; // Rotation pro Millisekunde (2π für eine vollständige Umdrehung in 500ms)
+        this.spinDuration = 5000; // Dauer des Schwertwirbels in Millisekunden
+        this.spinTimer = 0; // Timer für den Schwertwirbel
+
+        // Schwertwirbel Hitbox
+        this.spinHitbox = scene.add.circle(0, 0, 40, 0xff0000, 0);
+        this.scene.physics.add.existing(this.spinHitbox);
+        this.spinHitbox.setVisible(false);
+        this.spinHitbox.body.enable = false;
+    }
+
+    startSwordSpin() {
+        if (this.isSpinning) return;
+
+        this.isSpinning = true;
+        this.spinTimer = this.scene.time.now;
+
+        // Positioniere die Hitbox für den Wirbel am Charakter
+        this.spinHitbox.setPosition(this.x, this.y);
+        this.spinHitbox.setVisible(true);
+        this.spinHitbox.body.enable = true;
+
+        this.scene.time.addEvent({
+            delay: this.spinDuration,
+            callback: () => {
+                this.isSpinning = false;
+                this.spinHitbox.setVisible(false);
+                this.spinHitbox.body.enable = false;
+                this.rotation = 0; // Setze die Rotation des Charakters zurück
+            },
+            callbackScope: this
+        });
+
+        // Starte die Schwertwirbel-Animation
+        this.anims.play('charakter-sword-spin', true);
     }
 
     swingSword() {
@@ -72,10 +110,9 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             up: { x: 0, y: -10 },
             down: { x: 0, y: 10 }
         };
-        
+
         const offset = offsets[this.lastDirection];
         this.swordHitbox.setPosition(this.x + offset.x, this.y + offset.y);
-        
 
         // Aktiviere die Kollisionserkennung der Hitbox
         this.swordHitbox.setVisible(true);
@@ -212,7 +249,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.lastShootTime = this.scene.time.now;
     }
 
-    coins(coin){
+    coins(coin) {
         return Phaser.Math.Between(50, 200);
     }
 
@@ -247,7 +284,17 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         if (this.customKeys.dash.isDown) {
             this.dash();
             animKey = 'charakter-dash';
+        } else if (this.customKeys.spin.isDown && !this.isSwingingSword) {
+            if (!this.isSpinning) {
+                this.startSwordSpin();
+            }
+            animKey = 'charakter-sword-spin'; // Animation für den Schwertwirbel
+        } else if (this.customKeys.sword.isDown && !this.isSpinning) {
+            this.setVelocity(0, 0);
+            this.swingSword();
+            animKey = 'charakter-sword'; // Animation für den Schwertschlag
         } else {
+            // Bewegung
             if (this.customKeys.left.isDown) {
                 this.setVelocity(-this.speed, 0);
                 this.scaleX = -1;
@@ -272,16 +319,24 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocity(0, 0);
                 animKey = 'charakter-bow';
                 this.shootArrow();
-            } else if (this.customKeys.sword.isDown) {
-                this.setVelocity(0, 0);
-                this.swingSword();
-                animKey = 'charakter-sword'
             } else {
                 this.setVelocity(0, 0);
             }
         }
 
-        if (!this.isSwingingSword) {
+        // Schwertwirbel-Logik
+        if (this.isSpinning) {
+            this.spinHitbox.setPosition(this.x, this.y);
+            this.spinHitbox.body.setSize(80, 80); // Größe der Hitbox für den Wirbel
+            this.spinHitbox.body.setCircle(40); // Kreisförmige Hitbox für den Wirbel
+            this.rotation += this.spinSpeed; // Rotation des Charakters
+            this.scene.physics.overlap(this.spinHitbox, this.scene.orcs, (spinHitbox, orc) => {
+                // Schaden oder Kollision mit Orks
+                orc.destroy(); // Beispielmethode, um Schaden zuzufügen
+            });
+        }
+
+        if (!this.isSwingingSword && !this.isSpinning) {
             this.anims.play(animKey, true);
         }
     }

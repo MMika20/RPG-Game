@@ -40,6 +40,13 @@ function createCharakterAnims(anims) {
         repeat: 0,
         frameRate: 1
     })
+
+    anims.create({
+        key: 'charakter-sword-spin',
+        frames: anims.generateFrameNames('charakter', {start: 4, end: 5, prefix: 'sword0', suffix: '.png'}),
+        repeat: -1,
+        frameRate: 3
+    })
 }
 
 export default createCharakterAnims;

@@ -124,4 +124,5 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
     }
 }
 
+
 export default Trader;

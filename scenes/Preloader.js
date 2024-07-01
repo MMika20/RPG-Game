@@ -23,6 +23,7 @@ class Preloader extends Phaser.Scene {
         this.load.image('heart_empty', './ui/heart_empty.png');
         this.load.image('arrow', './assets/arrow.png');
         this.load.image('fireball', './assets/Fireball.png');
+        this.load.image('swordSpin', './assets/swordSpin.png');
         
     }
 
