@@ -5,7 +5,8 @@ import createCharakterAnims from '../anims/createCharakterAnims';
 import createNecromancerAnims from '../anims/createNecromancerAnims';
 import Orc from '../Orc';
 import createOrcAnims from '../anims/createOrcAnims';
-import HealthBar from '../HealthBar'; // Annahme: HealthBar-Klasse muss noch implementiert werden
+import HealthBar from '../HealthBar';
+import sceneEvents from '../events/EventsCenter';
 
 class BossLevel extends CharacterScene {
     constructor() {
@@ -63,6 +64,7 @@ class BossLevel extends CharacterScene {
 
             }
         });
+        sceneEvents.emit('player-health-changed', this.charakter.health);
         
 
         this.physics.add.collider(this.fireballGroup, objectLayer, (fireball, layer) => {
@@ -105,22 +107,39 @@ class BossLevel extends CharacterScene {
                 this.healthBar.setPercentage(this.necromancer.health / 20); // Annahme: 20 ist der maximale Gesundheitswert des Necromancers
             }
         }
+    
+        // Überprüfe, ob der Charakter wieder angreifbar ist
+        if (this.invulnerable && this.time.now - this.lastHitTime > this.invulnerableTime) {
+            this.invulnerable = false;
+        }
     }
+    
 
     handlePlayerNecromancerCollision(charakter, necromancer) {
         // Überprüfen, ob der Charakter gerade nicht immun ist
         if (!this.invulnerable) {
             if (!charakter.isSwingingSword) {
-                charakter.handleDamage(necromancer.body.velocity);
-
+                // Charakter nimmt Schaden
+                charakter.handleDamage(new Phaser.Math.Vector2(necromancer.x - charakter.x, necromancer.y - charakter.y));
+    
                 // Setzen der Immunität
                 this.invulnerable = true;
                 this.lastHitTime = this.time.now; // Zeit des letzten Treffers
-
-                // Hier können Sie den Code hinzufügen, um die Spieler-Gesundheit zu aktualisieren
+    
+                // Rückstoß für den Charakter
+                const knockback = new Phaser.Math.Vector2(necromancer.x - charakter.x, necromancer.y - charakter.y).normalize().scale(-200);
+                charakter.setVelocity(knockback.x, knockback.y);
+    
+                // Rückstoß für den Necromancer (leichter als beim Charakter)
+                const necromancerKnockback = new Phaser.Math.Vector2(necromancer.x - charakter.x, necromancer.y - charakter.y).normalize().scale(100);
+                necromancer.setVelocity(0, 0);
+    
+                // Event für Charaktergesundheit aktualisieren
+                sceneEvents.emit('player-health-changed', charakter.health);
             }
         }
     }
+    
     
 }
 

@@ -5,6 +5,7 @@ import createCharakterAnims from '../anims/createCharakterAnims';
 import createOrcAnims from '../anims/createOrcAnims';
 import Orc from '../Orc';
 import Trader from '../Trader';
+import sceneEvents from '../events/EventsCenter';
 
 class MapSouthEast extends CharacterScene {
     constructor() {
@@ -98,6 +99,7 @@ class MapSouthEast extends CharacterScene {
             this.handlePlayerOrcCollision(charakter, orc);
         });
 
+        sceneEvents.emit('player-health-changed', this.charakter.health);
         // Übergangszone erstellen
         this.createTransitionZone(745, 1, 40, 1, () => {
             this.scene.start('MapEast', { charakter: this.charakter, from: 'MapSouthEast' });
@@ -109,7 +111,7 @@ class MapSouthEast extends CharacterScene {
     }
 
     update(time, delta) {
-        
+
         if (this.trader) {
             this.trader.update();
         }

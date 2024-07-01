@@ -6,6 +6,7 @@ import Orc from '../Orc';
 import Trader from '../Trader';
 import sceneEvents from '../events/EventsCenter';
 import CoinCounter from '../CoinCounter';
+import Charakter from '../Charakter';
 
 class MainMap extends CharacterScene {
     constructor() {
@@ -51,7 +52,6 @@ class MainMap extends CharacterScene {
         } else {
             // Default-Fall oder andere Szenarien
             this.createCharacter(100, 150, 'charakter', 'Idle01.png');
-            
         }
         const arrowGroup = this.createArrowGroup();
         this.charakter.setArrow(arrowGroup);
@@ -101,6 +101,7 @@ class MainMap extends CharacterScene {
             this.handlePlayerOrcCollision(charakter, orc);
         });
 
+        sceneEvents.emit('player-health-changed', this.charakter.health);
         // Übergangszone erstellen
         this.createTransitionZone(1, 150, 1, 40, () => {
             this.scene.start('MapWest', { charakter: this.charakter, from: 'MainMap' });

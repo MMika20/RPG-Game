@@ -1,13 +1,22 @@
 import GameUI from "./scenes/GameUI";
+import sceneEvents from "./events/EventsCenter";
 
-let health = 5; // Startleben
+class HealthManager {
+    static health = 5; // Beispielwert, kann nach Bedarf angepasst werden
 
-const increaseHealth = (amount) => {
-    health += amount;
-};
+    static increaseHealth(amount) {
+        this.health += amount;
+        sceneEvents.emit('player-health-changed', this.health);
+    }
 
-const getHealth = () => {
-    return health;
-};
+    static getHealth() {
+        return this.health;
+    }
 
-export default { increaseHealth, getHealth };
+    static setHealth(health) {
+        this.health = this.health;
+        sceneEvents.emit('player-health-changed', this.currentHealth);
+    }
+}
+
+export default HealthManager;

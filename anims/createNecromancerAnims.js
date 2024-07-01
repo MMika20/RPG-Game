@@ -10,7 +10,7 @@ function createNecromancerAnims(anims) {
         key: 'necromancer-shoot',
         frames: anims.generateFrameNames('necromancer', { start: 1, end: 14, prefix: 'attack', suffix: '.png' }),
         repeat: 0,
-        frameRate: 8
+        frameRate: 6
     });
 
     anims.create({

@@ -32,7 +32,7 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
     }
 
     showUpgradeWindow(character) {
-        // Fensterposition berechnen, etwas über dem Charakter
+        // Fensterposition berechnen
         const characterX = character.x;
         const characterY = character.y;
 
@@ -40,12 +40,13 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
         const upgradeWindow = this.scene.add.container(characterX, characterY);
         const background = this.scene.add.rectangle(0, 0, 200, 180, 0x000000, 0.8);
         const closeButton = this.scene.add.text(80, -80, 'X', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        const shopText = this.scene.add.text(-80, -60, 'Shop - Upgrades', { fontSize: '16px', fill: '#fff' });
         const quantityText = this.scene.add.text(-80, -30, 'Anzahl:', { fontSize: '14px', fill: '#fff' });
-        const quantityInput = this.scene.add.text(-20, -30, '1', { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const quantityInput = this.scene.add.text(-20, -30, '1      ', { fontSize: '14px', fill: '#fff' }).setInteractive();
 
-        const speedButton = this.scene.add.text(-80, 0, 'Speed Upgrade', { fontSize: '14px', fill: '#fff' }).setInteractive();
-        const damageButton = this.scene.add.text(-80, 30, 'Damage Upgrade', { fontSize: '14px', fill: '#fff' }).setInteractive();
-        const healthButton = this.scene.add.text(-80, 60, 'Health Upgrade', { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const speedButton = this.scene.add.text(-80, 0, 'Speed          -2000-', { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const damageButton = this.scene.add.text(-80, 30, 'Damage         -3000-', { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const healthButton = this.scene.add.text(-80, 60, 'Health         -5000-', { fontSize: '14px', fill: '#fff' }).setInteractive();
 
         // Button-Interaktionen
         closeButton.on('pointerdown', () => {
@@ -77,7 +78,7 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
             upgradeWindow.destroy();
         });
 
-        upgradeWindow.add([background, closeButton, quantityText, quantityInput, speedButton, damageButton, healthButton]);
+        upgradeWindow.add([background, closeButton, shopText, quantityText, quantityInput, speedButton, damageButton, healthButton]);
     }
 
     interactWithCharacterSpeed(character, quantity) {

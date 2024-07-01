@@ -91,6 +91,8 @@ class MapWest extends CharacterScene {
             this.handlePlayerOrcCollision(charakter, orc);
         });
 
+
+        sceneEvents.emit('player-health-changed', this.charakter.health);
         // Übergangszone erstellen
         this.createTransitionZone(1024, 150, 1, 40, () => {
             this.scene.start('MainMap', { charakter: this.charakter, from: 'MapWest' });

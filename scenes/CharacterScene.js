@@ -125,6 +125,13 @@ class CharacterScene extends Phaser.Scene {
         }
     }
 
+    update() {
+        if (this.charakter._health <= 0) {
+            charakter.destroy();
+            this.add.text(charakter.x, charakter.y, 'Game Over!', { fontSize: '32px'}).setOrigin('0.5');
+            this.add.text(charakter.x, charakter.y + 20, 'Please Restart.', { fontSize: '16px'}).setOrigin('0.5');
+        }
+    }
     updateCharacterAndOrcs() {
         if (this.charakter) {
             this.charakter.update();

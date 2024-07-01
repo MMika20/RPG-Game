@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import SpeedManager from './SpeedManager';
 import HealthManager from './HealthManager';
+import sceneEvents from './events/EventsCenter';
 
 class Charakter extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
@@ -151,6 +152,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         }
 
         --this._health;
+        HealthManager.setHealth(this._health);
 
         if (this._health <= 0) {
             this.healthState = this.healthStates.DEAD;
@@ -162,6 +164,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.healthState = this.healthStates.DAMAGE;
             this.damageTime = 0;
         }
+
+        sceneEvents.emit('player-health-changed', this._health);
     }
 
     shootArrow() {
