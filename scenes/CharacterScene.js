@@ -64,7 +64,6 @@ class CharacterScene extends Phaser.Scene {
 
     handleSwordOrcCollision(swordHitbox, orc) {
         // Deaktiviere die Hitbox des Schwerts und mache sie unsichtbar
-        
         swordHitbox.body.enable = false;
     
         // Zerstöre den Orc
@@ -109,6 +108,8 @@ class CharacterScene extends Phaser.Scene {
     handleNecromancerArrowCollision(necromancer, arrow) {
         arrow.destroy();
         necromancer.handleDamage(DamageManager.getDamage()); // Damage vom Pfeil
+        necromancer.body.setVelocity(0, 0);
+        necromancer.body.stop();
         
         if (necromancer.health <= 0) {
             necromancer.disableBody(true, true);
@@ -116,6 +117,11 @@ class CharacterScene extends Phaser.Scene {
             CoinCounter.addCoins(coins);
             CoinCounter.coinText(this, necromancer.x, necromancer.y, coins);
             sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
+        } else {
+            // Teleportieren des Necromancers bei jedem Treffer
+            let necromancerX = Phaser.Math.Between(300, 750);
+            let necromancerY = Phaser.Math.Between(200, 600);
+            necromancer.setPosition(necromancerX, necromancerY);
         }
     }
 

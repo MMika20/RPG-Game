@@ -20,8 +20,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             right: Phaser.Input.Keyboard.KeyCodes.D,
             sword: Phaser.Input.Keyboard.KeyCodes.E,
             bow: Phaser.Input.Keyboard.KeyCodes.SPACE,
-            dash: Phaser.Input.Keyboard.KeyCodes.SHIFT,
-            reset: Phaser.Input.Keyboard.KeyCodes.R
+            dash: Phaser.Input.Keyboard.KeyCodes.SHIFT
         });
 
         this.healthStates = {
@@ -82,7 +81,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.swordHitbox.body.enable = true;
 
         // Deaktiviere die Hitbox nach einer kurzen Verzögerung
-        this.scene.time.delayedCall(7, () => {
+        this.scene.time.delayedCall(20, () => {
             this.swordHitbox.setVisible(false);
             this.swordHitbox.body.enable = false;
             this.isSwingingSword = false;
@@ -273,8 +272,6 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocity(0, 0);
                 this.swingSword();
                 animKey = 'charakter-sword'
-            } else if (this.customKeys.reset.isDown) {
-                this.scene.scene.restart();
             } else {
                 this.setVelocity(0, 0);
             }

@@ -14,6 +14,7 @@ class StartScene extends Phaser.Scene {
         this.add.text(1, 15, '-Leertaste-   zum Schießen')
         this.add.text(1, 30, '-E-           Schwertschlag');
         this.add.text(1, 45, '-Shift-       Dash');
+        this.add.text(1, 60, '-F-           Interaktion Shop');
         this.input.on('pointerdown', () => {
             this.scene.stop('StartScene');
             this.scene.start('MainMap');

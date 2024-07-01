@@ -81,11 +81,9 @@ class MapNorthEast extends CharacterScene {
 
         // Trader + Kollision erstellt
         this.trader = new Trader(this, 940, 430, 'trader');
-        this.add.text(940,410,'3000 Coins = Damage++', { fontSize: '8px'}).setOrigin(0.5);
+        this.add.text(940,410,'Shop', { fontSize: '12px'}).setOrigin(0.5);
         this.physics.add.existing(this.trader);
-        this.physics.add.overlap(this.charakter, this.trader, () => {
-            this.trader.interactWithCharacterDamage(this.charakter);
-        });
+    
 
         // Animationen zuweisen
         createCharakterAnims(this.anims);
@@ -112,6 +110,11 @@ class MapNorthEast extends CharacterScene {
     }
 
     update(time, delta) {
+
+        if (this.trader) {
+            this.trader.update();
+        }
+        
         this.updateCharacterAndOrcs();
     }
 }

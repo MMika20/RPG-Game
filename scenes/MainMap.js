@@ -4,7 +4,8 @@ import createCharakterAnims from '../anims/createCharakterAnims';
 import createOrcAnims from '../anims/createOrcAnims';
 import Orc from '../Orc';
 import Trader from '../Trader';
-
+import sceneEvents from '../events/EventsCenter';
+import CoinCounter from '../CoinCounter';
 
 class MainMap extends CharacterScene {
     constructor() {
@@ -50,6 +51,7 @@ class MainMap extends CharacterScene {
         } else {
             // Default-Fall oder andere Szenarien
             this.createCharacter(100, 150, 'charakter', 'Idle01.png');
+            
         }
         const arrowGroup = this.createArrowGroup();
         this.charakter.setArrow(arrowGroup);
@@ -73,17 +75,13 @@ class MainMap extends CharacterScene {
         this.physics.add.collider(arrowGroup, objectLayer, this.handleArrowWallCollision, undefined, this); // Kollisionsabfrage zwischen Pfeilen und Objektschicht
         this.physics.add.collider(this.charakter.swordHitbox, this.orcs, this.handleSwordOrcCollision, null, this);
         
-
         // Kollisionsabfrage zwischen Charakter und Objektschicht
         this.physics.add.collider(this.charakter, objectLayer);
 
         // Trader + Kollision erstellt
         this.trader = new Trader(this, 650, 60, 'trader');
-        this.add.text(650,40,'2000 Coins = Movementspeed++', { fontSize: '8px'}).setOrigin(0.5);
+        this.add.text(650, 40, 'Shop', { fontSize: '12px' }).setOrigin(0.5);
         this.physics.add.existing(this.trader);
-        this.physics.add.overlap(this.charakter, this.trader, () => {
-            this.trader.interactWithCharacterSpeed(this.charakter);
-        });
 
         // Kamera Einstellungen
         this.cameras.main.startFollow(this.charakter);
@@ -122,6 +120,11 @@ class MainMap extends CharacterScene {
     }
 
     update(time, delta) {
+        // Update der Nähe des Charakters zum Trader
+        if (this.trader) {
+            this.trader.update();
+        }
+
         this.updateCharacterAndOrcs();
     }
 }

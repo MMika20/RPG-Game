@@ -14,6 +14,10 @@ class BossLevel extends CharacterScene {
         this.orcs = null;
         this.healthBar = null;
         this.fireballGroup = null;
+        this.invulnerable = false; // Variable zur Verfolgung des Immunitätsstatus
+        this.invulnerableTime = 1000; // Zeit in Millisekunden (1 Sekunde)
+        this.lastHitTime = 0; // Zeitpunkt des letzten Treffers
+    
     }
 
     create(data) {
@@ -84,7 +88,7 @@ class BossLevel extends CharacterScene {
             orc.play('enemy-walk');
         });
 
-        this.physics.add.collider(arrowGroup, this.necromancer, this.handleNecromancerArrowCollision, undefined, this);
+        this.physics.add.collider(arrowGroup, this.necromancer, this.handleNecromancerArrowCollision, undefined, this)
         this.physics.add.collider(arrowGroup, objectLayer, this.handleArrowWallCollision, undefined, this);
         this.physics.add.collider(this.charakter, objectLayer);
         this.physics.add.collider(this.charakter, this.necromancer, this.handlePlayerNecromancerCollision, null, this);
@@ -104,8 +108,17 @@ class BossLevel extends CharacterScene {
     }
 
     handlePlayerNecromancerCollision(charakter, necromancer) {
-        if (!charakter.isSwingingSword) {
-            charakter.handleDamage(necromancer.body.velocity);
+        // Überprüfen, ob der Charakter gerade nicht immun ist
+        if (!this.invulnerable) {
+            if (!charakter.isSwingingSword) {
+                charakter.handleDamage(necromancer.body.velocity);
+
+                // Setzen der Immunität
+                this.invulnerable = true;
+                this.lastHitTime = this.time.now; // Zeit des letzten Treffers
+
+                // Hier können Sie den Code hinzufügen, um die Spieler-Gesundheit zu aktualisieren
+            }
         }
     }
     

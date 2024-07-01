@@ -8,6 +8,7 @@ class GameUI extends Phaser.Scene {
         super({ key: 'GameUI' });
         this.hearts = null;
         this.coinsLabel = null;
+        
     }
 
     preload() {
@@ -40,7 +41,7 @@ class GameUI extends Phaser.Scene {
             quantity: HealthManager.getHealth() // Anzahl der Herzensbilder
         });
 
-        // Event für Änderungen der Lebenspunkte des Spielers abonnieren
+        // Event für Änderungen der Lebenspunkte des Spielers
         sceneEvents.on('player-health-changed', this.handlePlayerHealthChanged, this);
     }
 

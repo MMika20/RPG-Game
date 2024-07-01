@@ -3,6 +3,7 @@ import CharacterScene from './CharacterScene';
 import createCharakterAnims from '../anims/createCharakterAnims';
 import createOrcAnims from '../anims/createOrcAnims';
 import Orc from '../Orc';
+import sceneEvents from '../events/EventsCenter';
 
 class MapWest extends CharacterScene {
     constructor() {
@@ -106,6 +107,7 @@ class MapWest extends CharacterScene {
 
     update(time, delta) {
         this.updateCharacterAndOrcs();
+
     }
 }
 

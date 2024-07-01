@@ -81,12 +81,9 @@ class MapSouthEast extends CharacterScene {
 
         // Trader + Kollision erstellt
         this.trader = new Trader(this, 980, 490, 'trader');
-        this.add.text(980,510,'5000 Coins = Health++', { fontSize: '8px'}).setOrigin(0.5);
+        this.add.text(980,510,'Shop', { fontSize: '12px'}).setOrigin(0.5);
         this.physics.add.existing(this.trader);
-        this.physics.add.overlap(this.charakter, this.trader, () => {
-            this.trader.interactWithCharacterHealth(this.charakter);
-        });
-
+    
         // Animationen zuweisen
         createCharakterAnims(this.anims);
         createOrcAnims(this.anims);
@@ -112,6 +109,11 @@ class MapSouthEast extends CharacterScene {
     }
 
     update(time, delta) {
+        
+        if (this.trader) {
+            this.trader.update();
+        }
+
         this.updateCharacterAndOrcs();
     }
 }

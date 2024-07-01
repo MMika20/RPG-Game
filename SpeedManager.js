@@ -1,5 +1,5 @@
 // SpeedManager.js
-let speed = 70; // Startgeschwindigkeit
+let speed = 270; // Startgeschwindigkeit
 
 const increaseSpeed = (amount) => {
     speed += amount;
