@@ -122,9 +122,12 @@ class CharacterScene extends Phaser.Scene {
         
         if (necromancer.health <= 0) {
             necromancer.disableBody(true, true);
-            const coins = Phaser.Math.Between(4000, 6000);
+            const coins = Phaser.Math.Between(4500, 6200);
             CoinCounter.addCoins(coins);
             CoinCounter.coinText(this, necromancer.x, necromancer.y, coins);
+            if(coins > 6000){
+                this.add.text('LEGENDARY!' ,necromancer.x, necromancer.y + 20);
+            }
             sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
         } else {
             // Teleportieren des Necromancers bei jedem Treffer
@@ -133,7 +136,7 @@ class CharacterScene extends Phaser.Scene {
             necromancer.setPosition(necromancerX, necromancerY);
         }
     }
-    
+
     updateCharacterAndOrcs() {
         if (this.charakter) {
             this.charakter.update();

@@ -11,6 +11,7 @@ import MapNorthEast from './scenes/MapNorthEast.js';
 import MapNorth from './scenes/MapNorth.js';
 import MapNorthWest from './scenes/MapNorthWest.js';
 import BossLevel from './scenes/BossLevel.js';
+import MapScene from './scenes/MapScene.js';
 import Preloader from './scenes/Preloader.js'
 
 
@@ -20,7 +21,7 @@ const config = {
     width: 1024,
     height: 720,
     backgroundColor: '#2d2d2d',
-    scene: [Preloader, StartScene, MainMap, MapWest, MapSouthWest, MapSouth, MapSouthEast, MapEast, MapNorthEast, MapNorth, MapNorthWest, BossLevel, GameUI],
+    scene: [Preloader, StartScene, MainMap, MapWest, MapSouthWest, MapSouth, MapSouthEast, MapEast, MapNorthEast, MapNorth, MapNorthWest, MapScene, BossLevel, GameUI],
     physics: {
         default: 'arcade',
         arcade: {

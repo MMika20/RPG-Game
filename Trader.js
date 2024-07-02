@@ -97,7 +97,7 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
     interactWithCharacterDamage(character, quantity) {
         const totalCost = this.coinsRequiredDamage * quantity;
         if (CoinCounter.getCoins() >= totalCost) {
-            DamageManager.increaseDamage(1 * quantity);
+            DamageManager.increaseDamage(0.5 * quantity);
             CoinCounter.subtractCoins(totalCost);
             console.log(`Damage increased by ${1 * quantity}! Remaining coins: ${CoinCounter.getCoins()}`);
             sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());

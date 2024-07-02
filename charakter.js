@@ -3,6 +3,7 @@ import SpeedManager from './SpeedManager';
 import HealthManager from './HealthManager';
 import sceneEvents from './events/EventsCenter';
 import CoinCounter from './CoinCounter';
+import MapScene from './scenes/MapScene';
 
 class Charakter extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
@@ -23,7 +24,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             sword: Phaser.Input.Keyboard.KeyCodes.E,
             spin: Phaser.Input.Keyboard.KeyCodes.R,
             bow: Phaser.Input.Keyboard.KeyCodes.SPACE,
-            dash: Phaser.Input.Keyboard.KeyCodes.SHIFT
+            dash: Phaser.Input.Keyboard.KeyCodes.SHIFT,
+            map: Phaser.Input.Keyboard.KeyCodes.M
         });
 
         this.healthStates = {
@@ -62,19 +64,39 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.isSpinning = false; // Zustand des Schwertwirbels
         this.spinSpeed = 0.3; // Rotation pro Millisekunde (2π für eine vollständige Umdrehung in 500ms)
         this.spinDuration = 5000; // Dauer des Schwertwirbels in Millisekunden
-        this.spinTimer = 0; // Timer für den Schwertwirbel
+        this.spinCooldown = 10000; // Abklingzeit des Schwertwirbels
+        this.lastSpinTime = 0;
 
         // Schwertwirbel Hitbox
         this.spinHitbox = scene.add.circle(0, 0, 40, 0xff0000, 0);
         this.scene.physics.add.existing(this.spinHitbox);
         this.spinHitbox.setVisible(false);
         this.spinHitbox.body.enable = false;
+
+        this.mapVisible = false; // Zustand der Karte
+        this.mapCooldown = 300;
+        this.lastMapTime = 0; // Zeitpunkt der letzten Kartennutzung
+
+        // Initialisiere die Karte (erstellt die MapScene, wenn nicht vorhanden)
+        this.mapScene = this.scene.scene.get('MapScene') || this.scene.scene.add('MapScene', new MapScene());
+    }
+
+    toggleMap() {
+        if (this.isMapVisible) {
+            // Karte schließen
+            this.scene.scene.stop('MapScene');
+        } else {
+            // Karte öffnen
+            this.scene.scene.launch('MapScene');
+        }
+        this.isMapVisible = !this.isMapVisible;
     }
 
     startSwordSpin() {
-        if (this.isSpinning) return;
+        if (this.isSpinning || this.scene.time.now - this.lastSpinTime < this.spinCooldown) return;
 
         this.isSpinning = true;
+        this.lastSpinTime = this.scene.time.now;
         this.spinTimer = this.scene.time.now;
 
         // Positioniere die Hitbox für den Wirbel am Charakter
@@ -282,6 +304,17 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         let animKey = 'charakter-idle';
 
+        const now = this.scene.time.now;
+
+        if (this.customKeys.map.isDown) {
+            if (now - this.lastMapTime >= this.mapCooldown) {
+                if (this.mapScene) {
+                    this.toggleMap();
+                }
+                this.lastMapTime = now;
+            }
+        }
+
         if (this.customKeys.dash.isDown) {
             this.dash();
             animKey = 'charakter-dash';
@@ -327,7 +360,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         // Schwertwirbel-Logik
         if (this.isSpinning) {
-            this.spinHitbox.setPosition(this.x -5, this.y - 5);
+            this.spinHitbox.setPosition(this.x - 5, this.y - 5);
             this.spinHitbox.body.setSize(30, 30); // Größe der Hitbox für den Wirbel
             this.spinHitbox.body.setCircle(20); // Kreisförmige Hitbox für den Wirbel
             this.rotation += this.spinSpeed; // Rotation des Charakters
@@ -335,7 +368,6 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         if (!this.isSwingingSword && !this.isSpinning) {
             this.anims.play(animKey, true);
-            
         }
     }
 }
