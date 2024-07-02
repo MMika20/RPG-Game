@@ -112,6 +112,8 @@ class MapNorth extends CharacterScene {
         this.createTransitionZone(470, 1, 40, 1, () => {
             this.scene.start('BossLevel', { charakter: this.charakter, from: 'MapNorth' });
         });
+
+        sceneEvents.emit('update-map-name', 'North');
     }
 
     update(time, delta) {

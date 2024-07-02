@@ -118,6 +118,19 @@ class MainMap extends CharacterScene {
         this.createTransitionZone(855, 1, 40, 1, () => {
             this.scene.start('MapNorth', { charakter: this.charakter, from: 'MainMap' });
         });
+
+        sceneEvents.emit('update-map-name', 'Middle');
+    }
+
+    switchMap(mapName) {
+        // Logik zum Wechseln der Map
+
+        // Hole die GameUI-Szene
+        const gameUI = this.scene.get('GameUI');
+        
+        if (gameUI) {
+            gameUI.updateMapName(mapName); // Aktualisiere den Namen der aktuellen Map
+        }
     }
 
     update(time, delta) {

@@ -110,6 +110,8 @@ class MapNorthEast extends CharacterScene {
         this.createTransitionZone(935, 720, 40, 1, () => {
             this.scene.start('MapEast', { charakter: this.charakter, from: 'MapNorthEast' });
         });
+
+        sceneEvents.emit('update-map-name', 'North-East');
     }
 
     update(time, delta) {

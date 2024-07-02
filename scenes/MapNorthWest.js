@@ -106,6 +106,8 @@ class MapNorthWest extends CharacterScene {
         this.createTransitionZone(1024, 440, 1, 40, () => {
             this.scene.start('MapNorth', { charakter: this.charakter, from: 'MapNorthWest' });
         });
+
+        sceneEvents.emit('update-map-name', 'North-West');
     }
 
     update(time, delta) {

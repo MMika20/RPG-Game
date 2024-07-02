@@ -97,6 +97,8 @@ class BossLevel extends CharacterScene {
         this.physics.add.collider(this.charakter, this.fireballGroup, this.handleFireballCollision, undefined, this)
         this.physics.add.collider(this.charakter.spinHitbox, this.orcs, this.handleSpinOrcCollision, null, this)
         
+
+        sceneEvents.emit('update-map-name', 'Boss');
     }
 
     update(time, delta) {
@@ -137,8 +139,6 @@ class BossLevel extends CharacterScene {
     
                 // Event für Charaktergesundheit aktualisieren
                 sceneEvents.emit('player-health-changed', charakter.health);
-
-        
             }
         }
     }

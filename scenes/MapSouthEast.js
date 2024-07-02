@@ -109,6 +109,8 @@ class MapSouthEast extends CharacterScene {
         this.createTransitionZone(1, 250, 1, 40, () => {
             this.scene.start('MapSouth', { charakter: this.charakter, from: 'MapSouthEast' });
         });
+
+        sceneEvents.emit('update-map-name', 'South-East');
     }
 
     update(time, delta) {
