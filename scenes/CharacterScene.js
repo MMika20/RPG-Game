@@ -78,6 +78,15 @@ class CharacterScene extends Phaser.Scene {
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
     
+    handleSpinOrcCollision(spinHitbox, orc) {
+        this.physics.add.overlap(this.charakter.spinHitbox, this.orcs, this.handleSpinOrcCollision, null, this);
+        orc.destroy();
+        const coins = Phaser.Math.Between(50, 200);
+        CoinCounter.addCoins(coins);
+        CoinCounter.coinText(this, orc.x, orc.y, coins);
+        
+        sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());; // Beispielmethode, um Schaden zuzufügen
+    }
 
     handleArrowOrcCollision(arrow, orc) {
         arrow.disableBody(false, true);
@@ -124,14 +133,7 @@ class CharacterScene extends Phaser.Scene {
             necromancer.setPosition(necromancerX, necromancerY);
         }
     }
-
-    update() {
-        if (this.charakter._health <= 0) {
-            charakter.destroy();
-            this.add.text(charakter.x, charakter.y, 'Game Over!', { fontSize: '32px'}).setOrigin('0.5');
-            this.add.text(charakter.x, charakter.y + 20, 'Please Restart.', { fontSize: '16px'}).setOrigin('0.5');
-        }
-    }
+    
     updateCharacterAndOrcs() {
         if (this.charakter) {
             this.charakter.update();

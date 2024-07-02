@@ -58,10 +58,15 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
         fireball.on('animationcomplete', () => {
             this.play('necromancer-idle'); // Zurück zur Idle-Animation
         });
+
+        if (this.scene.charakter._health <= 0) {
+            this.scene.charakter.destroy();
+            this.scene.add.text(this.scene.charakter.x, this.scene.charakter.y - 20, 'Game Over!', { fontSize: '40px'}).setOrigin('0.5');
+            this.scene.add.text(this.scene.charakter.x, this.scene.charakter.y + 20, 'Please Restart.', { fontSize: '24px'}).setOrigin('0.5');
+        }
     }
 
     sprintToTarget(target) {
-        this.play('necromancer-sprint', true); // Starte die Sprintanimation
 
         // Berechne die Richtung zum Ziel
         const targetVec = new Phaser.Math.Vector2(target.x - this.x, target.y - this.y);

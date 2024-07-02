@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import SpeedManager from './SpeedManager';
 import HealthManager from './HealthManager';
 import sceneEvents from './events/EventsCenter';
+import CoinCounter from './CoinCounter';
 
 class Charakter extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame) {
@@ -59,7 +60,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         // Schwertwirbel Einstellungen
         this.isSpinning = false; // Zustand des Schwertwirbels
-        this.spinSpeed = 30; // Rotation pro Millisekunde (2π für eine vollständige Umdrehung in 500ms)
+        this.spinSpeed = 0.3; // Rotation pro Millisekunde (2π für eine vollständige Umdrehung in 500ms)
         this.spinDuration = 5000; // Dauer des Schwertwirbels in Millisekunden
         this.spinTimer = 0; // Timer für den Schwertwirbel
 
@@ -326,18 +327,15 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         // Schwertwirbel-Logik
         if (this.isSpinning) {
-            this.spinHitbox.setPosition(this.x, this.y);
-            this.spinHitbox.body.setSize(80, 80); // Größe der Hitbox für den Wirbel
-            this.spinHitbox.body.setCircle(40); // Kreisförmige Hitbox für den Wirbel
+            this.spinHitbox.setPosition(this.x -5, this.y - 5);
+            this.spinHitbox.body.setSize(30, 30); // Größe der Hitbox für den Wirbel
+            this.spinHitbox.body.setCircle(20); // Kreisförmige Hitbox für den Wirbel
             this.rotation += this.spinSpeed; // Rotation des Charakters
-            this.scene.physics.overlap(this.spinHitbox, this.scene.orcs, (spinHitbox, orc) => {
-                // Schaden oder Kollision mit Orks
-                orc.destroy(); // Beispielmethode, um Schaden zuzufügen
-            });
         }
 
         if (!this.isSwingingSword && !this.isSpinning) {
             this.anims.play(animKey, true);
+            
         }
     }
 }

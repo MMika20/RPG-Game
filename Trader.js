@@ -41,8 +41,8 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
         const background = this.scene.add.rectangle(0, 0, 200, 180, 0x000000, 0.8);
         const closeButton = this.scene.add.text(80, -80, 'X', { fontSize: '18px', fill: '#fff' }).setInteractive();
         const shopText = this.scene.add.text(-80, -60, 'Shop - Upgrades', { fontSize: '16px', fill: '#fff' });
-        const quantityText = this.scene.add.text(-80, -30, 'Anzahl:', { fontSize: '14px', fill: '#fff' });
-        const quantityInput = this.scene.add.text(-20, -30, '1      ', { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const quantityText = this.scene.add.text(-80, -30, 'Amount:', { fontSize: '14px', fill: '#fff' });
+        const quantityInput = this.scene.add.text(-20, -30, '1      ', { fontSize: '14px', fill: '#1fff' }).setInteractive();
 
         const speedButton = this.scene.add.text(-80, 0, 'Speed          -2000-', { fontSize: '14px', fill: '#fff' }).setInteractive();
         const damageButton = this.scene.add.text(-80, 30, 'Damage         -3000-', { fontSize: '14px', fill: '#fff' }).setInteractive();
