@@ -45,7 +45,7 @@ class GameUI extends Phaser.Scene {
         // Sword Icon
         this.add.image(barWidth / 2, this.cameras.main.height - barHeight / 2 + 10, 'sword_icon').setScale(iconSize / 16); // Anpassung der Größe
         this.add.text(barWidth / 2 + 10, this.cameras.main.height - barHeight / 2 - 10, 'Swing', { fontSize: '18px', fill: '#ffffff' });
-        this.add.text(barWidth / 2 + 10, this.cameras.main.height - barHeight / 2 + 10, 'E', { fontSize: '18px', fill: '#ffffff' });
+        this.add.text(barWidth / 2 + 10, this.cameras.main.height - barHeight / 2 + 10, '-E-', { fontSize: '18px', fill: '#ffffff' });
 
         // Bow Icon
         this.add.image(barWidth / 2 + 110 - 10, this.cameras.main.height - barHeight / 2 +10, 'bow_icon').setScale(iconSize / 16); // Anpassung der Größe
@@ -55,7 +55,7 @@ class GameUI extends Phaser.Scene {
         // Spin Icon
         this.add.image(barWidth / 2 + 210, this.cameras.main.height - barHeight / 2 +10, 'spin_icon').setScale(iconSize / 32); // Anpassung der Größe
         this.add.text(barWidth / 2 + 240, this.cameras.main.height - barHeight / 2 - 10, 'Spin', { fontSize: '18px', fill: '#ffffff' });
-        this.add.text(barWidth / 2 + 240, this.cameras.main.height - barHeight / 2 + 10, 'R', { fontSize: '18px', fill: '#ffffff' });
+        this.add.text(barWidth / 2 + 240, this.cameras.main.height - barHeight / 2 + 10, '-R-', { fontSize: '18px', fill: '#ffffff' });
 
         // Map Icon
         this.add.image(barWidth / 2 + 540, this.cameras.main.height - barHeight / 2 +10, 'map_icon').setScale(iconSize / 750); // Anpassung der Größe
