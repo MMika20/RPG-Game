@@ -38,15 +38,23 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
 
         // Fenster erstellen
         const upgradeWindow = this.scene.add.container(characterX, characterY);
-        const background = this.scene.add.rectangle(0, 0, 200, 180, 0x000000, 0.8);
-        const closeButton = this.scene.add.text(80, -80, 'X', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        const background = this.scene.add.rectangle(0, 0, 220, 200, 0x000000, 0.8);
+        const closeButton = this.scene.add.text(80, -90, 'X', { fontSize: '18px', fill: '#fff' }).setInteractive();
         const shopText = this.scene.add.text(-80, -60, 'Shop - Upgrades', { fontSize: '16px', fill: '#fff' });
         const quantityText = this.scene.add.text(-80, -30, 'Amount:', { fontSize: '14px', fill: '#fff' });
-        const quantityInput = this.scene.add.text(-20, -30, '1      ', { fontSize: '14px', fill: '#1fff' }).setInteractive();
+        const quantityInput = this.scene.add.text(-20, -30, '1', { fontSize: '14px', fill: '#1fff' }).setInteractive();
 
-        const speedButton = this.scene.add.text(-80, 0, 'Speed          -2000-', { fontSize: '14px', fill: '#fff' }).setInteractive();
-        const damageButton = this.scene.add.text(-80, 30, 'Damage         -3000-', { fontSize: '14px', fill: '#fff' }).setInteractive();
-        const healthButton = this.scene.add.text(-80, 60, 'Health         -5000-', { fontSize: '14px', fill: '#fff' }).setInteractive();
+        // Initiale Preise anzeigen
+        const speedButton = this.scene.add.text(-80, 0, `Speed          -${this.coinsRequiredSpeed * 1}-`, { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const damageButton = this.scene.add.text(-80, 30, `Damage         -${this.coinsRequiredDamage * 1}-`, { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const healthButton = this.scene.add.text(-80, 60, `Health         -${this.coinsRequiredHealth * 1}-`, { fontSize: '14px', fill: '#fff' }).setInteractive();
+
+        // Methode zum Aktualisieren der Preise
+        const updatePrices = (quantity) => {
+            speedButton.setText(`Speed          -${this.coinsRequiredSpeed * quantity}-`);
+            damageButton.setText(`Damage         -${this.coinsRequiredDamage * quantity}-`);
+            healthButton.setText(`Health         -${this.coinsRequiredHealth * quantity}-`);
+        };
 
         // Button-Interaktionen
         closeButton.on('pointerdown', () => {
@@ -54,26 +62,37 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
         });
 
         quantityInput.on('pointerdown', () => {
-            const newQuantity = prompt('Enter quantity:');
-            if (newQuantity && !isNaN(newQuantity) && newQuantity > 0) {
-                quantityInput.setText(newQuantity);
+            // Prompt für die Benutzereingabe
+            let newQuantity = prompt('Enter amount:');
+            
+            // Eingabevalidierung
+            if (newQuantity !== null) { // Überprüfe, ob der Benutzer etwas eingegeben hat
+                newQuantity = parseInt(newQuantity, 10); // Wandle die Eingabe in eine Ganzzahl um
+                
+                // Überprüfe, ob die Eingabe eine gültige positive Ganzzahl ist
+                if (!isNaN(newQuantity) && newQuantity > 0) {
+                    quantityInput.setText(newQuantity);
+                    updatePrices(newQuantity); // Preise aktualisieren
+                } else {
+                    alert('Please enter a valid positive number.');
+                }
             }
         });
 
         speedButton.on('pointerdown', () => {
-            const quantity = parseInt(quantityInput.text);
+            const quantity = parseInt(quantityInput.text, 10);
             this.interactWithCharacterSpeed(character, quantity);
             upgradeWindow.destroy();
         });
 
         damageButton.on('pointerdown', () => {
-            const quantity = parseInt(quantityInput.text);
+            const quantity = parseInt(quantityInput.text, 10);
             this.interactWithCharacterDamage(character, quantity);
             upgradeWindow.destroy();
         });
 
         healthButton.on('pointerdown', () => {
-            const quantity = parseInt(quantityInput.text);
+            const quantity = parseInt(quantityInput.text, 10);
             this.interactWithCharacterHealth(character, quantity);
             upgradeWindow.destroy();
         });
@@ -99,7 +118,7 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
         if (CoinCounter.getCoins() >= totalCost) {
             DamageManager.increaseDamage(0.5 * quantity);
             CoinCounter.subtractCoins(totalCost);
-            console.log(`Damage increased by ${1 * quantity}! Remaining coins: ${CoinCounter.getCoins()}`);
+            console.log(`Damage increased by ${0.5 * quantity}! Remaining coins: ${CoinCounter.getCoins()}`);
             sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
         } else {
             console.log("Not enough coins to purchase Damage-Upgrade!");
@@ -123,6 +142,5 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
         this.isInRange = this.scene.physics.overlap(this.scene.charakter, this);
     }
 }
-
 
 export default Trader;
