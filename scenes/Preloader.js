@@ -2,7 +2,9 @@ class Preloader extends Phaser.Scene {
     constructor() {
         super({ key: 'Preloader' });
     }
-    preload(){
+
+    preload() {
+        // Bilder laden
         this.load.image('tiles1', './assets/RPG_Map_Tileset.png');
         this.load.image('tiles2', './assets/RPG_Map_Tileset2.png');
         this.load.tilemapTiledJSON('mainMap', './assets/RPG.json');
@@ -31,21 +33,26 @@ class Preloader extends Phaser.Scene {
         this.load.image('map_icon', './assets/MapIcon.png');
         this.load.image('map', './assets/FullMap.png');
         this.load.image('marker', './assets/marker.png');
+        
+        // Audio-Dateien laden
         this.load.audio('backgroundMusic', './assets/sounds/backgroundMusic.mp3');
-        //this.load.audio('swordSwing', './assets/sounds/swordSound.mp3');
-        //this.load.audio('bowShot', './assets/sounds/bowSound.mp3');
-        //this.load.audio('dash', './assets/sounds/dash.mp3');
-        //this.load.audio('swordSpin', './assets/sounds/swordSpin.mp3');
+        this.load.audio('swordSwing', './assets/sounds/swordSound.mp3');
+        this.load.audio('bowShot', './assets/sounds/bowSound.mp3');
+        this.load.audio('dash', './assets/sounds/dash.mp3');
+        this.load.audio('swordSpin', './assets/sounds/swordSpin.mp3');
+        this.load.audio('orcDeath', './assets/sounds/orcDeath.mp3');
     }
 
-    create(){
+    create() {
+        // Hintergrundmusik abspielen
         this.music = this.sound.add('backgroundMusic', {
             loop: true, // Wiederholt die Musik
             volume: 0.5 // Lautstärke (0.0 bis 1.0)
         });
         this.music.play();
 
-        this.scene.start('StartScene')
+        // Starte die StartSzene
+        this.scene.start('StartScene');
     }
 
     stopMusic() {
@@ -54,4 +61,5 @@ class Preloader extends Phaser.Scene {
         }
     }
 }
+
 export default Preloader;

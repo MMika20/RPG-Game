@@ -17,7 +17,9 @@ class CharacterScene extends Phaser.Scene {
         this.necromancer = null;
         this.dmg = DamageManager.getDamage();
         this.notificationText = null;
+        this.orcDeathSound = null;
     }
+
 
     createCharacter(x, y, texture, frame) {
         if (!this.charakter) {
@@ -100,7 +102,12 @@ class CharacterScene extends Phaser.Scene {
         CoinCounter.addCoins(coins);
         CoinCounter.coinText(this, orc.x, orc.y, coins);
         KillCounter.incrementOrcKills();
-
+    
+        this.orcDeath = this.sound.add('orcDeath');
+        this.orcDeath.play();
+        
+       
+        
         // Emitiere Event zur Aktualisierung der Münzen
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
@@ -112,6 +119,8 @@ class CharacterScene extends Phaser.Scene {
         CoinCounter.addCoins(coins);
         CoinCounter.coinText(this, orc.x, orc.y, coins);
         KillCounter.incrementOrcKills();
+        this.orcDeath = this.sound.add('orcDeath');
+        this.orcDeath.play();
 
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
@@ -122,8 +131,9 @@ class CharacterScene extends Phaser.Scene {
         const coins = Phaser.Math.Between(50, 200); // Between 50 and 200 coins per orc
         CoinCounter.addCoins(coins);
         KillCounter.incrementOrcKills();
-
         CoinCounter.coinText(this, orc.x, orc.y, coins);
+        this.orcDeath = this.sound.add('orcDeath');
+        this.orcDeath.play();
 
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }

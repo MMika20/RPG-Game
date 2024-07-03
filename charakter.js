@@ -28,6 +28,9 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             map: Phaser.Input.Keyboard.KeyCodes.M
         });
 
+        this.bowShot = scene.sound.add('bowShot');
+        this.dashSound = scene.sound.add('dash');
+
         this.healthStates = {
             IDLE: 'IDLE',
             DAMAGE: 'DAMAGE',
@@ -79,6 +82,12 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         // Initialisiere die Karte (erstellt die MapScene, wenn nicht vorhanden)
         this.mapScene = this.scene.scene.get('MapScene') || this.scene.scene.add('MapScene', new MapScene());
+
+        //Sound
+        this.swingSound = this.scene.sound.add('swordSwing', {
+            loop: true, // Wiederhole den Sound, solange er abgespielt wird
+            volume: 0.5 // Lautstärke des Sounds
+        });
     }
 
     toggleMap() {
@@ -94,16 +103,26 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
     startSwordSpin() {
         if (this.isSpinning || this.scene.time.now - this.lastSpinTime < this.spinCooldown) return;
-
+    
         this.isSpinning = true;
         this.lastSpinTime = this.scene.time.now;
         this.spinTimer = this.scene.time.now;
-
+    
         // Positioniere die Hitbox für den Wirbel am Charakter
         this.spinHitbox.setPosition(this.x, this.y);
         this.spinHitbox.setVisible(true);
         this.spinHitbox.body.enable = true;
-
+    
+        // Starte den Sound und lasse ihn wiederholen
+        if (this.spinSound) {
+            this.spinSound.stop(); // Stoppe den Sound, wenn er schon läuft
+        }
+        this.spinSound = this.scene.sound.add('swordSpin', {
+            loop: true, // Wiederhole den Sound, solange der Schwertwirbel aktiv ist
+            volume: 0.5 // Lautstärke des Sounds
+        });
+        this.spinSound.play();
+    
         this.scene.time.addEvent({
             delay: this.spinDuration,
             callback: () => {
@@ -111,21 +130,27 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 this.spinHitbox.setVisible(false);
                 this.spinHitbox.body.enable = false;
                 this.rotation = 0; // Setze die Rotation des Charakters zurück
+    
+                // Stoppe den Sound, wenn der Schwertwirbel endet
+                if (this.spinSound) {
+                    this.spinSound.stop();
+                }
             },
             callbackScope: this
         });
-
+    
         // Starte die Schwertwirbel-Animation
         this.anims.play('charakter-sword-spin', true);
     }
+    
 
     swingSword() {
         if (this.isSwingingSword || this.healthState === this.healthStates.DAMAGE) {
             return;
         }
-
+    
         this.isSwingingSword = true;
-
+    
         // Positioniere die Hitbox basierend auf der letzten Blickrichtung
         const offsets = {
             left: { x: -10, y: 0 },
@@ -133,24 +158,31 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             up: { x: 0, y: -10 },
             down: { x: 0, y: 10 }
         };
-
+    
         const offset = offsets[this.lastDirection];
         this.swordHitbox.setPosition(this.x + offset.x, this.y + offset.y);
-
+    
         // Aktiviere die Kollisionserkennung der Hitbox
         this.swordHitbox.setVisible(true);
         this.swordHitbox.body.enable = true;
-
+    
         // Deaktiviere die Hitbox nach einer kurzen Verzögerung
         this.scene.time.delayedCall(20, () => {
             this.swordHitbox.setVisible(false);
             this.swordHitbox.body.enable = false;
             this.isSwingingSword = false;
         });
-
+    
         // Starte die Schwertschlag-Animation
         this.anims.play('charakter-sword', true);
+    
+        // Starte den SwordSwing-Sound, wenn die E-Taste gedrückt ist
+        if (this.customKeys.sword.isDown && !this.swingSound.isPlaying) {
+            this.swingSound.play();
+        }
     }
+    
+    
 
     dash() {
         if (this.isDashing || this.scene.time.now - this.lastDashTime < this.dashCooldown) {
@@ -196,6 +228,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.isDashing = false;
             this.setVelocity(0, 0); // Setze die Geschwindigkeit auf Null, um den Dash zu beenden
         });
+        this.dashSound.play();
     }
 
     get health() {
@@ -277,6 +310,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
     // Verhindere, dass der Pfeil sofort wieder geschossen wird
     this.canShoot = false;
     this.lastShootTime = this.scene.time.now;
+
+    this.bowShot.play();
 }
 
 
@@ -331,11 +366,13 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 this.startSwordSpin();
             }
             animKey = 'charakter-sword-spin'; // Animation für den Schwertwirbel
-        } else if (this.customKeys.sword.isDown && !this.isSpinning) {
-            this.setVelocity(0, 0);
+        } else if (this.customKeys.sword.isDown && !this.isSwingingSword) {
             this.swingSword();
             animKey = 'charakter-sword'; // Animation für den Schwertschlag
-        } else {
+        } else if (!this.customKeys.sword.isDown && this.swingSound.isPlaying) {
+            // Stoppe den SwordSwing-Sound, wenn die E-Taste losgelassen wird
+            this.swingSound.stop();
+        }else {
             // Bewegung
             let moveDirection = new Phaser.Math.Vector2(0, 0);
     
