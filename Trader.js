@@ -18,9 +18,15 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
         this.coinsRequiredHealth = 5000; // " für Health-Upgrade
 
         this.isInRange = false; // Flag, um zu überprüfen, ob der Charakter in der Nähe des Traders ist
+        this.upgradeWindow = null; // Referenz zum aktuellen Upgrade-Fenster
 
-        // Event-Listener für die Taste 'F'
+        // "F to interact" Text hinzufügen
+        this.interactText = scene.add.text(this.x, this.y - 40, '-F- to interact', { fontSize: '12px', fill: '#ffffff' });
+        this.interactText.setVisible(false); // Standardmäßig unsichtbar
+
+        // Event-Listener für die Taste 'F' und 'Escape'
         this.scene.input.keyboard.on('keydown-F', () => this.handleInteraction(), this);
+        this.scene.input.keyboard.on('keydown-ESC', () => this.closeUpgradeWindow(), this);
     }
 
     handleInteraction() {
@@ -32,33 +38,35 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
     }
 
     showUpgradeWindow(character) {
+        if (this.upgradeWindow) return; // Verhindert mehrfaches Öffnen des Fensters
+
         // Fensterposition berechnen
         const characterX = character.x;
         const characterY = character.y;
 
         // Fenster erstellen
-        const upgradeWindow = this.scene.add.container(characterX, characterY);
+        this.upgradeWindow = this.scene.add.container(characterX, characterY);
         const background = this.scene.add.rectangle(0, 0, 220, 200, 0x000000, 0.8);
         const closeButton = this.scene.add.text(80, -90, 'X', { fontSize: '18px', fill: '#fff' }).setInteractive();
         const shopText = this.scene.add.text(-80, -60, 'Shop - Upgrades', { fontSize: '16px', fill: '#fff' });
         const quantityText = this.scene.add.text(-80, -30, 'Amount:', { fontSize: '14px', fill: '#fff' });
-        const quantityInput = this.scene.add.text(-20, -30, '1', { fontSize: '14px', fill: '#1fff' }).setInteractive();
+        const quantityInput = this.scene.add.text(-20, -30, '1          ', { fontSize: '14px', fill: '#1fff' }).setInteractive();
 
         // Initiale Preise anzeigen
-        const speedButton = this.scene.add.text(-80, 0, `Speed          -${this.coinsRequiredSpeed * 1}-`, { fontSize: '14px', fill: '#fff' }).setInteractive();
-        const damageButton = this.scene.add.text(-80, 30, `Damage         -${this.coinsRequiredDamage * 1}-`, { fontSize: '14px', fill: '#fff' }).setInteractive();
-        const healthButton = this.scene.add.text(-80, 60, `Health         -${this.coinsRequiredHealth * 1}-`, { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const speedButton = this.scene.add.text(-80, 0, `Speed     -${this.coinsRequiredSpeed * 1} Coins-`, { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const damageButton = this.scene.add.text(-80, 30, `Damage    -${this.coinsRequiredDamage * 1} Coins-`, { fontSize: '14px', fill: '#fff' }).setInteractive();
+        const healthButton = this.scene.add.text(-80, 60, `Health    -${this.coinsRequiredHealth * 1} Coins-`, { fontSize: '14px', fill: '#fff' }).setInteractive();
 
         // Methode zum Aktualisieren der Preise
         const updatePrices = (quantity) => {
-            speedButton.setText(`Speed          -${this.coinsRequiredSpeed * quantity}-`);
-            damageButton.setText(`Damage         -${this.coinsRequiredDamage * quantity}-`);
-            healthButton.setText(`Health         -${this.coinsRequiredHealth * quantity}-`);
+            speedButton.setText(`Speed    -${this.coinsRequiredSpeed * quantity} Coins-`);
+            damageButton.setText(`Damage   -${this.coinsRequiredDamage * quantity} Coins-`);
+            healthButton.setText(`Health   -${this.coinsRequiredHealth * quantity} Coins-`);
         };
 
         // Button-Interaktionen
         closeButton.on('pointerdown', () => {
-            upgradeWindow.destroy();
+            this.closeUpgradeWindow();
         });
 
         quantityInput.on('pointerdown', () => {
@@ -82,22 +90,29 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
         speedButton.on('pointerdown', () => {
             const quantity = parseInt(quantityInput.text, 10);
             this.interactWithCharacterSpeed(character, quantity);
-            upgradeWindow.destroy();
+            this.closeUpgradeWindow();
         });
 
         damageButton.on('pointerdown', () => {
             const quantity = parseInt(quantityInput.text, 10);
             this.interactWithCharacterDamage(character, quantity);
-            upgradeWindow.destroy();
+            this.closeUpgradeWindow();
         });
 
         healthButton.on('pointerdown', () => {
             const quantity = parseInt(quantityInput.text, 10);
             this.interactWithCharacterHealth(character, quantity);
-            upgradeWindow.destroy();
+            this.closeUpgradeWindow();
         });
 
-        upgradeWindow.add([background, closeButton, shopText, quantityText, quantityInput, speedButton, damageButton, healthButton]);
+        this.upgradeWindow.add([background, closeButton, shopText, quantityText, quantityInput, speedButton, damageButton, healthButton]);
+    }
+
+    closeUpgradeWindow() {
+        if (this.upgradeWindow) {
+            this.upgradeWindow.destroy();
+            this.upgradeWindow = null; // Setze die Referenz zurück
+        }
     }
 
     interactWithCharacterSpeed(character, quantity) {
@@ -140,6 +155,14 @@ class Trader extends Phaser.Physics.Arcade.Sprite {
     update() {
         // Überprüfe, ob der Charakter in der Nähe des Traders ist
         this.isInRange = this.scene.physics.overlap(this.scene.charakter, this);
+
+        // "F to interact" Text ein- oder ausblenden
+        if (this.isInRange) {
+            this.interactText.setVisible(true);
+            this.interactText.setPosition(this.x + 10, this.y - 5); // Text über dem Trader positionieren
+        } else {
+            this.interactText.setVisible(false);
+        }
     }
 }
 

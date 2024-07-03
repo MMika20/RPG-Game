@@ -2,6 +2,9 @@ import Phaser from 'phaser';
 import sceneEvents from '../events/EventsCenter';
 import HealthManager from '../HealthManager';
 import CoinCounter from '../CoinCounter';
+import SpeedManager from '../SpeedManager';
+import DamageManager from '../DamageManager';
+import KillCounter from '../KillCounter';
 
 class GameUI extends Phaser.Scene {
     constructor() {
@@ -9,6 +12,8 @@ class GameUI extends Phaser.Scene {
         this.hearts = null;
         this.coinsLabel = null;
         this.mapLabel = null;
+        this.statsWindow = null; // Hinzufügen für das Statistik-Fenster
+        this.menuWindow = null;  // Hinzufügen für das Menü-Fenster
     }
 
     create() {
@@ -32,6 +37,16 @@ class GameUI extends Phaser.Scene {
 
         // Steuerleiste ohne Hintergrund
         this.createControlBar();
+
+        // Event Listener für die C-Taste
+        this.input.keyboard.on('keydown-C', () => {
+            this.showStatsWindow();
+        });
+
+        // Event Listener für die Escape-Taste
+        this.input.keyboard.on('keydown-ESC', () => {
+            this.toggleMenu();
+        });
     }
 
     createControlBar() {
@@ -66,6 +81,105 @@ class GameUI extends Phaser.Scene {
         this.add.image(barWidth / 2 + 540, this.cameras.main.height - barHeight / 2 + 10, 'map_icon').setScale(iconSize / 750);
         this.add.text(barWidth / 2 + 525, this.cameras.main.height - barHeight / 2 - 35, 'Map ', { fontSize: '18px', fill: '#ffffff' });
         this.add.text(barWidth / 2 + 525, this.cameras.main.height - barHeight / 2 - 50, '-M-', { fontSize: '18px', fill: '#ffffff' });
+
+         // Stats Icon
+         this.add.image(barWidth / 2 + 480, this.cameras.main.height - barHeight / 2 + 10, 'marker').setScale(iconSize / 12);
+         this.add.text(barWidth / 2 + 455, this.cameras.main.height - barHeight / 2 - 35, 'Stats', { fontSize: '18px', fill: '#ffffff' });
+         this.add.text(barWidth / 2 + 465, this.cameras.main.height - barHeight / 2 - 50, '-C-', { fontSize: '18px', fill: '#ffffff' });
+    }
+
+    showStatsWindow() {
+        // Falls ein Statistik-Fenster bereits angezeigt wird, zerstöre es
+        if (this.statsWindow) {
+            this.statsWindow.destroy();
+            this.statsWindow = null;
+            return;
+        }
+
+        // Fensterposition berechnen
+        const x = this.cameras.main.centerX;
+        const y = this.cameras.main.centerY;
+
+        // Fenster erstellen
+        this.statsWindow = this.add.container(x, y);
+        const background = this.add.rectangle(0, 0, 300, 250, 0x000000, 0.8);
+        const closeButton = this.add.text(130, -115, 'X', { fontSize: '18px', fill: '#fff' }).setInteractive();
+
+        const statsText = this.add.text(-130, -100, 
+            `Stats\n\n` +
+            `Health:        ${HealthManager.getHealth()}\n` +
+            `Speed:         ${SpeedManager.getSpeed()}\n` +
+            `Damage:        ${DamageManager.getDamage()}\n` +
+            `Coins:         ${CoinCounter.getCoins()}\n\n\n`+
+            `Kills\n\n`+ 
+            `Orc:           ${KillCounter.getOrcKills()}\n` +
+            `Necromancer:   ${KillCounter.getNecromancerKills()}`, 
+            { fontSize: '16px', fill: '#fff' });
+
+        closeButton.on('pointerdown', () => {
+            this.statsWindow.destroy();
+            this.statsWindow = null;
+        });
+
+        this.statsWindow.add([background, closeButton, statsText]);
+    }
+
+    createMenu() {
+        // Falls ein Menü bereits angezeigt wird, zerstöre es
+        if (this.menuWindow) {
+            this.menuWindow.destroy();
+            this.menuWindow = null;
+            return;
+        }
+
+        // Fensterposition berechnen
+        const x = this.cameras.main.centerX;
+        const y = this.cameras.main.centerY;
+
+        // Fenster erstellen
+        this.menuWindow = this.add.container(x, y);
+        const background = this.add.rectangle(0, 0, 200, 150, 0x000000, 0.8);
+        const resumeButton = this.add.text(-60, -30, 'Resume', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        const restartButton = this.add.text(-60, 0, 'Restart', { fontSize: '18px', fill: '#fff' }).setInteractive();
+
+        resumeButton.on('pointerdown', () => {
+            this.menuWindow.destroy();
+            this.menuWindow = null;
+        });
+
+        restartButton.on('pointerdown', () => {
+            this.restartGame();
+        });
+
+        this.menuWindow.add([background, resumeButton, restartButton]);
+    }
+
+    toggleMenu() {
+        if (this.menuWindow) {
+            this.menuWindow.destroy();
+            this.menuWindow = null;
+        } else {
+            this.createMenu();
+        }
+    }
+
+    restartGame(data) {
+        // Holen Sie sich alle aktiven Szenen
+        this.scene.stop('MainMap');
+        this.scene.stop('MapEast');
+        this.scene.stop('MapNorth');
+        this.scene.stop('MapNorthEast');
+        this.scene.stop('MapNorthWest');
+        this.scene.stop('MapSouth');
+        this.scene.stop('MapSouthEast');
+        this.scene.stop('MapSouthWest');
+        this.scene.stop('MapWest');
+        this.scene.stop('BossLevel')
+        this.scene.stop('GameUI');
+
+        // Starten Sie die aktuelle Szene neu (wir nehmen an, dass die Hauptszene "Game" heißt)
+        this.scene.start('StartScene');
+        this.scene.start('GameUI');
     }
 
     updateCoins(coins) {

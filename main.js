@@ -29,7 +29,6 @@ const config = {
             debug: true
         }
     },
-    // test
 };
 
 const game = new Phaser.Game(config);

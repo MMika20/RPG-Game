@@ -229,48 +229,56 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
     }
 
     shootArrow() {
-        if (!this.arrow || !this.canShoot) {
-            return;
-        }
-
-        const vec = new Phaser.Math.Vector2(0, 0);
-
-        switch (this.lastDirection) {
-            case 'up':
-                vec.y = -1;
-                break;
-            case 'down':
-                vec.y = 1;
-                break;
-            case 'left':
-                vec.x = -1;
-                break;
-            case 'right':
-            default:
-                vec.x = 1;
-                break;
-        }
-
-        const angle = vec.angle();
-        const arrow = this.arrow.get(this.x, this.y, 'arrow');
-
-        if (!arrow) {
-            return;
-        }
-
-        if (vec.x !== 0) {
-            arrow.setSize(arrow.width * 0.3, arrow.height * 0.3);
-        } else {
-            arrow.setSize(arrow.width * 0.3, arrow.height * 0.5);
-        }
-
-        arrow.setActive(true).setVisible(true);
-        arrow.setRotation(angle);
-        arrow.setVelocity(vec.x * 300, vec.y * 300);
-
-        this.canShoot = false;
-        this.lastShootTime = this.scene.time.now;
+    if (!this.arrow || !this.canShoot) {
+        return;
     }
+
+    const vec = new Phaser.Math.Vector2(0, 0);
+
+    // Bestimme die Richtung basierend auf der letzten Blickrichtung
+    switch (this.lastDirection) {
+        case 'up':
+            vec.y = -1;
+            break;
+        case 'down':
+            vec.y = 1;
+            break;
+        case 'left':
+            vec.x = -1;
+            break;
+        case 'right':
+        default:
+            vec.x = 1;
+            break;
+    }
+
+    // Berechne den Winkel für die Rotation des Pfeils
+    const angle = vec.angle();
+
+    // Erstelle und initialisiere den Pfeil
+    const arrow = this.arrow.get(this.x, this.y, 'arrow');
+
+    if (!arrow) {
+        return;
+    }
+
+    // Setze die Größe des Pfeils
+    if (vec.x !== 0) {
+        arrow.setSize(arrow.width * 0.3, arrow.height * 0.3);
+    } else {
+        arrow.setSize(arrow.width * 0.3, arrow.height * 0.5);
+    }
+
+    // Setze die Richtung und Geschwindigkeit des Pfeils
+    arrow.setActive(true).setVisible(true);
+    arrow.setRotation(angle);
+    arrow.setVelocity(vec.x * 300, vec.y * 300); // Passe die Geschwindigkeit nach Bedarf an
+
+    // Verhindere, dass der Pfeil sofort wieder geschossen wird
+    this.canShoot = false;
+    this.lastShootTime = this.scene.time.now;
+}
+
 
     coins(coin) {
         return Phaser.Math.Between(50, 200);
@@ -301,11 +309,11 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         if (this.healthState === this.healthStates.DAMAGE || this.healthState === this.healthStates.DEAD) {
             return;
         }
-
+    
         let animKey = 'charakter-idle';
-
+    
         const now = this.scene.time.now;
-
+    
         if (this.customKeys.map.isDown) {
             if (now - this.lastMapTime >= this.mapCooldown) {
                 if (this.mapScene) {
@@ -314,7 +322,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 this.lastMapTime = now;
             }
         }
-
+    
         if (this.customKeys.dash.isDown) {
             this.dash();
             animKey = 'charakter-dash';
@@ -329,26 +337,46 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             animKey = 'charakter-sword'; // Animation für den Schwertschlag
         } else {
             // Bewegung
+            let moveDirection = new Phaser.Math.Vector2(0, 0);
+    
             if (this.customKeys.left.isDown) {
-                this.setVelocity(-this.speed, 0);
-                this.scaleX = -1;
-                this.body.offset.x = 56;
-                animKey = 'charakter-walk';
-                this.lastDirection = 'left';
+                moveDirection.x = -1;
             } else if (this.customKeys.right.isDown) {
-                this.setVelocity(this.speed, 0);
-                this.scaleX = 1;
-                this.body.offset.x = 44;
-                animKey = 'charakter-walk';
-                this.lastDirection = 'right';
-            } else if (this.customKeys.up.isDown) {
-                this.setVelocity(0, -this.speed);
-                animKey = 'charakter-walk';
-                this.lastDirection = 'up';
+                moveDirection.x = 1;
+            }
+    
+            if (this.customKeys.up.isDown) {
+                moveDirection.y = -1;
             } else if (this.customKeys.down.isDown) {
-                this.setVelocity(0, this.speed);
+                moveDirection.y = 1;
+            }
+    
+            if (moveDirection.x !== 0 && moveDirection.y !== 0) {
+                moveDirection.normalize();
+            }
+    
+            this.setVelocity(moveDirection.x * this.speed, moveDirection.y * this.speed);
+    
+            if (moveDirection.x !== 0 || moveDirection.y !== 0) {
                 animKey = 'charakter-walk';
-                this.lastDirection = 'down';
+    
+                // Richtungsabhängiger Flip & Blickrichtung
+                if (moveDirection.x < 0) {
+                    this.scaleX = -1; // Charakter nach links flippen
+                    this.lastDirection = 'left';
+                    this.body.offset.x = 56;
+                } else if (moveDirection.x > 0) {
+                    this.scaleX = 1; // Charakter nach rechts flippen
+                    this.lastDirection = 'right';
+                    this.body.offset.x = 44;
+                }
+    
+                if (moveDirection.y < 0) {
+                    this.lastDirection = 'up';
+                } else if (moveDirection.y > 0) {
+                    this.lastDirection = 'down';
+                }
+    
             } else if (this.customKeys.bow.isDown) {
                 this.setVelocity(0, 0);
                 animKey = 'charakter-bow';
@@ -357,7 +385,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                 this.setVelocity(0, 0);
             }
         }
-
+    
         // Schwertwirbel-Logik
         if (this.isSpinning) {
             this.spinHitbox.setPosition(this.x - 5, this.y - 5);
@@ -365,11 +393,13 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.spinHitbox.body.setCircle(20); // Kreisförmige Hitbox für den Wirbel
             this.rotation += this.spinSpeed; // Rotation des Charakters
         }
-
+    
         if (!this.isSwingingSword && !this.isSpinning) {
             this.anims.play(animKey, true);
         }
     }
+    
+    
 }
 
 export default Charakter;

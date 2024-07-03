@@ -14,14 +14,13 @@ class HealthBar extends Phaser.GameObjects.Container {
     }
 
     draw() {
-        // Clear previous drawings
         this.bar.clear();
 
-        // Draw background bar
+        // Hintergrundfarbe Healthbar (schwarz)
         this.bar.fillStyle(0x000000);
         this.bar.fillRect(-20, -5, 40, 5);
 
-        // Draw health bar
+        // Healthbar Farbe (Rot)
         this.bar.fillStyle(0xff0000);
         this.bar.fillRect(-20, -5, 40 * (this.currentHealth / this.maxHealth), 5);
 

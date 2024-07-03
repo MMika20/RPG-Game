@@ -6,6 +6,7 @@ import Orc from '../Orc.js';
 import Trader from '../Trader.js';
 import Necromancer from '../Necromancer.js';
 import DamageManager from '../DamageManager.js';
+import KillCounter from '../KillCounter.js';
 
 class CharacterScene extends Phaser.Scene {
     constructor(key) {
@@ -65,27 +66,29 @@ class CharacterScene extends Phaser.Scene {
     handleSwordOrcCollision(swordHitbox, orc) {
         // Deaktiviere die Hitbox des Schwerts und mache sie unsichtbar
         swordHitbox.body.enable = false;
-    
+
         // Zerstöre den Orc
         orc.destroy(true, true);
-    
+
         // Füge Münzen hinzu und aktualisiere die Anzeige
         const coins = Phaser.Math.Between(50, 200);
         CoinCounter.addCoins(coins);
         CoinCounter.coinText(this, orc.x, orc.y, coins);
-    
+        KillCounter.incrementOrcKills();
+
         // Emitiere Event zur Aktualisierung der Münzen
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
-    
+
     handleSpinOrcCollision(spinHitbox, orc) {
         this.physics.add.overlap(this.charakter.spinHitbox, this.orcs, this.handleSpinOrcCollision, null, this);
         orc.destroy();
         const coins = Phaser.Math.Between(50, 200);
         CoinCounter.addCoins(coins);
         CoinCounter.coinText(this, orc.x, orc.y, coins);
-        
-        sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());; // Beispielmethode, um Schaden zuzufügen
+        KillCounter.incrementOrcKills();
+
+        sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
 
     handleArrowOrcCollision(arrow, orc) {
@@ -93,6 +96,7 @@ class CharacterScene extends Phaser.Scene {
         orc.disableBody(true, true);
         const coins = Phaser.Math.Between(50, 200); // Between 50 and 200 coins per orc
         CoinCounter.addCoins(coins);
+        KillCounter.incrementOrcKills();
 
         CoinCounter.coinText(this, orc.x, orc.y, coins);
 
@@ -119,15 +123,39 @@ class CharacterScene extends Phaser.Scene {
         necromancer.handleDamage(DamageManager.getDamage()); // Damage vom Pfeil
         necromancer.body.setVelocity(0, 0);
         necromancer.body.stop();
-        
+
         if (necromancer.health <= 0) {
             necromancer.disableBody(true, true);
             const coins = Phaser.Math.Between(4500, 6200);
             CoinCounter.addCoins(coins);
             CoinCounter.coinText(this, necromancer.x, necromancer.y, coins);
-            if(coins > 6000){
-                this.add.text('LEGENDARY!' ,necromancer.x, necromancer.y + 20);
-            }
+            KillCounter.incrementNecromancerKills();
+
+            sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
+        } else {
+            // Teleportieren des Necromancers bei jedem Treffer
+            let necromancerX = Phaser.Math.Between(300, 750);
+            let necromancerY = Phaser.Math.Between(200, 600);
+            necromancer.setPosition(necromancerX, necromancerY);
+        }
+    }
+
+    handleNecromancerSwordCollision(swordHitbox, necromancer) {
+        // Deaktiviere die Hitbox des Schwerts und mache sie unsichtbar
+        swordHitbox.body.enable = false;
+
+        // Füge Schaden dem Necromancer hinzu
+        necromancer.handleDamage(DamageManager.getDamage());
+        necromancer.body.setVelocity(0, 0);
+        necromancer.body.stop();
+
+        if (necromancer.health <= 0) {
+            necromancer.disableBody(true, true);
+            const coins = Phaser.Math.Between(4500, 6200);
+            CoinCounter.addCoins(coins);
+            CoinCounter.coinText(this, necromancer.x, necromancer.y, coins);
+            KillCounter.incrementNecromancerKills();
+
             sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
         } else {
             // Teleportieren des Necromancers bei jedem Treffer

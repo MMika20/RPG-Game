@@ -96,6 +96,7 @@ class BossLevel extends CharacterScene {
         this.physics.add.collider(this.charakter, this.necromancer, this.handlePlayerNecromancerCollision, null, this);
         this.physics.add.collider(this.charakter, this.fireballGroup, this.handleFireballCollision, undefined, this)
         this.physics.add.collider(this.charakter.spinHitbox, this.orcs, this.handleSpinOrcCollision, null, this)
+        this.physics.add.collider(this.charakter.swordHitbox, this.necromancer, this.handleNecromancerSwordCollision, null, this);
         
 
         sceneEvents.emit('update-map-name', 'Boss');
