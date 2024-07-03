@@ -2,7 +2,7 @@ import GameUI from "./scenes/GameUI";
 import sceneEvents from "./events/EventsCenter";
 
 class HealthManager {
-    static health = 5; // Beispielwert, kann nach Bedarf angepasst werden
+    static health = 5; // Starthealth
 
     static increaseHealth(amount) {
         this.health += amount;

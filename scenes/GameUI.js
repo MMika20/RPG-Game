@@ -14,6 +14,8 @@ class GameUI extends Phaser.Scene {
         this.mapLabel = null;
         this.statsWindow = null; // Hinzufügen für das Statistik-Fenster
         this.menuWindow = null;  // Hinzufügen für das Menü-Fenster
+        this.music = null; // Referenz zur Hintergrundmusik
+        this.volumeText = null; // Text für die Lautstärkeanzeige
     }
 
     create() {
@@ -47,6 +49,9 @@ class GameUI extends Phaser.Scene {
         this.input.keyboard.on('keydown-ESC', () => {
             this.toggleMenu();
         });
+
+        // Hintergrundmusik referenzieren
+        this.music = this.scene.get('Preloader').music; // Angenommen, die Musik läuft in der MainScene
     }
 
     createControlBar() {
@@ -82,10 +87,10 @@ class GameUI extends Phaser.Scene {
         this.add.text(barWidth / 2 + 525, this.cameras.main.height - barHeight / 2 - 35, 'Map ', { fontSize: '18px', fill: '#ffffff' });
         this.add.text(barWidth / 2 + 525, this.cameras.main.height - barHeight / 2 - 50, '-M-', { fontSize: '18px', fill: '#ffffff' });
 
-         // Stats Icon
-         this.add.image(barWidth / 2 + 480, this.cameras.main.height - barHeight / 2 + 10, 'marker').setScale(iconSize / 12);
-         this.add.text(barWidth / 2 + 455, this.cameras.main.height - barHeight / 2 - 35, 'Stats', { fontSize: '18px', fill: '#ffffff' });
-         this.add.text(barWidth / 2 + 465, this.cameras.main.height - barHeight / 2 - 50, '-C-', { fontSize: '18px', fill: '#ffffff' });
+        // Stats Icon
+        this.add.image(barWidth / 2 + 480, this.cameras.main.height - barHeight / 2 + 10, 'marker').setScale(iconSize / 12);
+        this.add.text(barWidth / 2 + 455, this.cameras.main.height - barHeight / 2 - 35, 'Stats', { fontSize: '18px', fill: '#ffffff' });
+        this.add.text(barWidth / 2 + 465, this.cameras.main.height - barHeight / 2 - 50, '-C-', { fontSize: '18px', fill: '#ffffff' });
     }
 
     showStatsWindow() {
@@ -138,9 +143,27 @@ class GameUI extends Phaser.Scene {
 
         // Fenster erstellen
         this.menuWindow = this.add.container(x, y);
-        const background = this.add.rectangle(0, 0, 200, 150, 0x000000, 0.8);
-        const resumeButton = this.add.text(-60, -30, 'Resume', { fontSize: '18px', fill: '#fff' }).setInteractive();
-        const restartButton = this.add.text(-60, 0, 'Restart', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        const background = this.add.rectangle(0, 0, 300, 200, 0x000000, 0.8);
+        const resumeButton = this.add.text(-60, -60, 'Resume', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        const restartButton = this.add.text(-60, -25, 'Restart', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        const volumeLabel = this.add.text(-60, 10, 'Volume', { fontSize: '18px', fill: '#fff' });
+        this.volumeText = this.add.text(50, 10, (this.music.volume * 100).toFixed(0) + '%', { fontSize: '18px', fill: '#fff' });
+
+        // Lautstärke erhöhen Button
+        const increaseVolumeButton = this.add.text(95, 10, '+', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        increaseVolumeButton.on('pointerdown', () => {
+            let newVolume = Phaser.Math.Clamp(this.music.volume + 0.1, 0, 1);
+            this.music.setVolume(newVolume);
+            this.volumeText.setText((newVolume * 100).toFixed(0) + '%');
+        });
+
+        // Lautstärke verringern Button
+        const decreaseVolumeButton = this.add.text(30, 10, '-', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        decreaseVolumeButton.on('pointerdown', () => {
+            let newVolume = Phaser.Math.Clamp(this.music.volume - 0.1, 0, 1);
+            this.music.setVolume(newVolume);
+            this.volumeText.setText((newVolume * 100).toFixed(0) + '%');
+        });
 
         resumeButton.on('pointerdown', () => {
             this.menuWindow.destroy();
@@ -151,7 +174,7 @@ class GameUI extends Phaser.Scene {
             this.restartGame();
         });
 
-        this.menuWindow.add([background, resumeButton, restartButton]);
+        this.menuWindow.add([background, resumeButton, restartButton, volumeLabel, this.volumeText, increaseVolumeButton, decreaseVolumeButton]);
     }
 
     toggleMenu() {
@@ -174,11 +197,12 @@ class GameUI extends Phaser.Scene {
         this.scene.stop('MapSouthEast');
         this.scene.stop('MapSouthWest');
         this.scene.stop('MapWest');
-        this.scene.stop('BossLevel')
+        this.scene.stop('BossLevel');
         this.scene.stop('GameUI');
 
         // Starten Sie die aktuelle Szene neu (wir nehmen an, dass die Hauptszene "Game" heißt)
         this.scene.start('StartScene');
+
         this.scene.start('GameUI');
     }
 

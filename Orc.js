@@ -7,6 +7,7 @@ class Orc extends Phaser.Physics.Arcade.Sprite {
         // Scene und Physics geaddet
         scene.add.existing(this);
         scene.physics.add.existing(this);
+        this.setCollideWorldBounds(true);
 
         // Enemy Einstellungen
         this.body.setSize(this.width * 0.12, this.height * 0.16); // Größe
@@ -15,6 +16,7 @@ class Orc extends Phaser.Physics.Arcade.Sprite {
         this.direction = Phaser.Math.RND.pick(['left', 'right', 'up', 'down', 'idle']); // Random direction auswählen
 
         this.flipX = false; // Für umdrehen der Animation
+
     }
 
     preUpdate(time, delta) {

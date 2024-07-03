@@ -20,7 +20,7 @@ class StartScene extends Phaser.Scene {
         this.input.on('pointerdown', () => {
             this.scene.stop('StartScene');
             this.scene.start('MainMap');
-			this.scene.start('GameUI');
+			this.scene.run('GameUI');
         });
     }
 }

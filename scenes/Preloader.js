@@ -31,10 +31,27 @@ class Preloader extends Phaser.Scene {
         this.load.image('map_icon', './assets/MapIcon.png');
         this.load.image('map', './assets/FullMap.png');
         this.load.image('marker', './assets/marker.png');
+        this.load.audio('backgroundMusic', './assets/sounds/backgroundMusic.mp3');
+        //this.load.audio('swordSwing', './assets/sounds/swordSound.mp3');
+        //this.load.audio('bowShot', './assets/sounds/bowSound.mp3');
+        //this.load.audio('dash', './assets/sounds/dash.mp3');
+        //this.load.audio('swordSpin', './assets/sounds/swordSpin.mp3');
     }
 
     create(){
+        this.music = this.sound.add('backgroundMusic', {
+            loop: true, // Wiederholt die Musik
+            volume: 0.5 // Lautstärke (0.0 bis 1.0)
+        });
+        this.music.play();
+
         this.scene.start('StartScene')
+    }
+
+    stopMusic() {
+        if (this.music) {
+            this.music.stop();
+        }
     }
 }
 export default Preloader;

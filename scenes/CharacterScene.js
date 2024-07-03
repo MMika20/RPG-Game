@@ -16,6 +16,7 @@ class CharacterScene extends Phaser.Scene {
         this.orcs = null;
         this.necromancer = null;
         this.dmg = DamageManager.getDamage();
+        this.notificationText = null;
     }
 
     createCharacter(x, y, texture, frame) {
@@ -57,6 +58,30 @@ class CharacterScene extends Phaser.Scene {
         const zone = this.add.zone(x, y, width, height);
         this.physics.world.enable(zone);
         this.physics.add.overlap(this.charakter, zone, callback, null, this);
+    }
+
+    showNotification(message) {
+        // Falls bereits eine Benachrichtigung angezeigt wird, entferne sie
+        if (this.notificationText) {
+            this.notificationText.destroy();
+        }
+
+        // Position der Benachrichtigung relativ zur Kamera berechnen
+        const camera = this.cameras.main;
+
+        // Benachrichtigungstext erstellen
+        this.notificationText = this.add.text(
+            this.charakter.x, this.charakter.y, 
+            message, 
+            { fontSize: '10px', fill: '#fff', align: 'right' }
+        ).setOrigin(0, 0.5);
+
+        // Die Benachrichtigung für eine bestimmte Zeit anzeigen (z.B. 3 Sekunden)
+        this.time.delayedCall(3000, () => {
+            if (this.notificationText) {
+                this.notificationText.destroy();
+            }
+        });
     }
 
     handleArrowWallCollision(arrow, objectLayer) {
@@ -165,6 +190,37 @@ class CharacterScene extends Phaser.Scene {
         }
     }
 
+    handleNecromancerSpinCollision(spinHitbox, necromancer) {
+        // Deaktivieren und unsichtbar machen der Spin-Hitbox
+        spinHitbox.setActive(false).setVisible(false);
+
+        // Schaden am Necromancer anrichten
+        necromancer.handleDamage(DamageManager.getDamage());
+
+        // Wenn der Necromancer stirbt
+        if (necromancer.health <= 0) {
+            necromancer.setVisible(false); // Sichtbarkeit auf false setzen
+            necromancer.setActive(false); // Aktivität auf false setzen
+            necromancer.body.enable = false; // Körper deaktivieren
+
+            // Münzen hinzufügen und Text anzeigen
+            const coins = Phaser.Math.Between(4500, 6200);
+            CoinCounter.addCoins(coins);
+            CoinCounter.coinText(this, necromancer.x, necromancer.y, coins);
+
+            // Kill Counter aktualisieren
+            KillCounter.incrementNecromancerKills();
+
+            // Emitiere Event zur Aktualisierung der Münzen
+            sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
+        } else {
+            // Teleportieren des Necromancers bei jedem Treffer
+            let necromancerX = Phaser.Math.Between(300, 750);
+            let necromancerY = Phaser.Math.Between(200, 600);
+            necromancer.setPosition(necromancerX, necromancerY);
+        }
+    }
+
     updateCharacterAndOrcs() {
         if (this.charakter) {
             this.charakter.update();
@@ -180,6 +236,11 @@ class CharacterScene extends Phaser.Scene {
 
         if (this.necromancer) {
             this.necromancer.update();
+        }
+
+        if (this.notificationText) {
+
+            this.notificationText.setPosition(this.charakter.x + 15, this.charakter.y - 100);
         }
     }
 }
