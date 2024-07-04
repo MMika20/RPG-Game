@@ -36,7 +36,7 @@ class Preloader extends Phaser.Scene {
         
         // Audio-Dateien laden
         this.load.audio('backgroundMusic', './assets/sounds/backgroundMusic.mp3');
-        this.load.audio('ambiente', './assets/sounds/Ambiente.mp3')
+        this.load.audio('ambient', './assets/sounds/Ambiente.mp3')
         this.load.audio('swordSwing', './assets/sounds/swordSound.mp3');
         this.load.audio('bowShot', './assets/sounds/bowShot.mp3');
         this.load.audio('dash', './assets/sounds/dash.mp3');
@@ -59,7 +59,7 @@ class Preloader extends Phaser.Scene {
             volume: 0.5 // Lautstärke (0.0 bis 1.0)
         });
 
-        this.ambient = this.sound.add('ambiente',{
+        this.ambient = this.sound.add('ambient',{
             loop: true,
             volume: 0.1
         })
