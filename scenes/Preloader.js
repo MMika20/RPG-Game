@@ -36,6 +36,7 @@ class Preloader extends Phaser.Scene {
         
         // Audio-Dateien laden
         this.load.audio('backgroundMusic', './assets/sounds/backgroundMusic.mp3');
+        this.load.audio('backgroundMusicBoss', './assets/sounds/backgroundMusicBoss.mp3');
         this.load.audio('ambient', './assets/sounds/Ambiente.mp3')
         this.load.audio('swordSwing', './assets/sounds/swordSound.mp3');
         this.load.audio('bowShot', './assets/sounds/bowShot.mp3');
@@ -50,6 +51,7 @@ class Preloader extends Phaser.Scene {
         this.load.audio('bossDash', './assets/sounds/bossDash.mp3')
         this.load.audio('bossDeath', './assets/sounds/bossDeath.mp3')
         this.load.audio('chaChing', './assets/sounds/cha_ching.mp3')
+
     }
 
     create() {
