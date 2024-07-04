@@ -26,7 +26,7 @@ const config = {
         default: 'arcade',
         arcade: {
             // Hitbox anzeigen lassen [true = an | false = aus]
-            debug: true
+            debug: false
         }
     },
 };

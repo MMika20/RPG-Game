@@ -116,6 +116,17 @@ class MapWest extends CharacterScene {
         this.updateCharacterAndOrcs();
 
     }
+    shutdown() {
+        // Stoppe die Sounds des Charakters
+        if (this.charakter.walkGrass && this.charakter.walkGrass.isPlaying) {
+            this.charakter.walkGrass.stop();
+        }
+
+        if (this.charakter.spinSound && this.charakter.spinSound.isPlaying) {
+            this.charakter.spinSound.stop();
+        }
+    }
+    
 }
 
 export default MapWest;

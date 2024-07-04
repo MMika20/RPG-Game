@@ -21,6 +21,11 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
         this.sprintCooldown = 12000; // 15 Sekunden
         this.sprintSpeed = 500; // Geschwindigkeit des Sprints
 
+        this.fireballSound = scene.sound.add('fireball');
+        this.bossHit = scene.sound.add('bosshit');
+        this.bossDash = scene.sound.add('bossDash');
+        this.characterHurt = scene.sound.add('characterHurt');
+        this.characterDeath = scene.sound.add('characterDeath');
     }
 
     create(){
@@ -53,17 +58,22 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
             charakter.handleDamage(new Phaser.Math.Vector2(vec.x * 100, vec.y * 100)); // Schaden am Charakter
             fireball.destroy(); // Fireball nach Kollision zerstören
             sceneEvents.emit('player-health-changed', this.scene.charakter.health); // Event auslösen
+            this.characterHurt.play({
+                volume: 0.5
+            });
         });
-
         fireball.on('animationcomplete', () => {
             this.play('necromancer-idle'); // Zurück zur Idle-Animation
         });
 
         if (this.scene.charakter._health <= 0) {
-            this.scene.charakter.destroy();
+            this.scene.charakter.destroy(true ,true);
             this.scene.add.text(this.scene.charakter.x, this.scene.charakter.y - 20, 'Game Over!', { fontSize: '40px'}).setOrigin('0.5');
             this.scene.add.text(this.scene.charakter.x, this.scene.charakter.y + 20, 'Please Restart.', { fontSize: '24px'}).setOrigin('0.5');
         }
+        this.fireballSound.play({
+            volume: 0.5
+        });
     }
 
     sprintToTarget(target) {
@@ -79,6 +89,9 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
         this.scene.time.delayedCall(500, () => {
             this.setVelocity(0, 0);
             this.play('necromancer-idle'); // Zurück zur Idle-Animation
+        });
+        this.bossDash.play({
+            volume: 0.5
         });
     }
 
@@ -96,6 +109,8 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
                     this.scene.scene.start('MainMap', { charakter: charakter, from: 'NecromancerBattle' });
                 }
             });
+        } else {
+            this.bossHit.play();
         }
     }
 
@@ -121,6 +136,12 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
         if (this._health > 0 && time > this.lastSprintTime + this.sprintCooldown) {
             this.lastSprintTime = time;
             this.sprintToTarget(this.scene.charakter); // Lasse den Necromancer zum Charakter sprinten
+        }
+    }
+
+    update(){
+        if (this.scene.charakter._health <= 0){
+            this.characterDeath.play();
         }
     }
     

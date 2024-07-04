@@ -36,11 +36,20 @@ class Preloader extends Phaser.Scene {
         
         // Audio-Dateien laden
         this.load.audio('backgroundMusic', './assets/sounds/backgroundMusic.mp3');
+        this.load.audio('ambiente', './assets/sounds/Ambiente.mp3')
         this.load.audio('swordSwing', './assets/sounds/swordSound.mp3');
-        this.load.audio('bowShot', './assets/sounds/bowSound.mp3');
+        this.load.audio('bowShot', './assets/sounds/bowShot.mp3');
         this.load.audio('dash', './assets/sounds/dash.mp3');
         this.load.audio('swordSpin', './assets/sounds/swordSpin.mp3');
         this.load.audio('orcDeath', './assets/sounds/orcDeath.mp3');
+        this.load.audio('characterHurt', './assets/sounds/characterHurt.mp3');
+        this.load.audio('fireball', './assets/sounds/fireball.mp3');
+        this.load.audio('characterDeath', './assets/sounds/characterDeath.mp3');
+        this.load.audio('walkGrass', './assets/sounds/walkGrass.mp3');
+        this.load.audio('bosshit', './assets/sounds/bosshit.mp3');
+        this.load.audio('bossDash', './assets/sounds/bossDash.mp3')
+        this.load.audio('bossDeath', './assets/sounds/bossDeath.mp3')
+        this.load.audio('chaChing', './assets/sounds/cha_ching.mp3')
     }
 
     create() {
@@ -49,7 +58,13 @@ class Preloader extends Phaser.Scene {
             loop: true, // Wiederholt die Musik
             volume: 0.5 // Lautstärke (0.0 bis 1.0)
         });
+
+        this.ambient = this.sound.add('ambiente',{
+            loop: true,
+            volume: 0.1
+        })
         this.music.play();
+        this.ambient.play();
 
         // Starte die StartSzene
         this.scene.start('StartScene');

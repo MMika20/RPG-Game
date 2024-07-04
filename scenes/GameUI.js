@@ -144,9 +144,9 @@ class GameUI extends Phaser.Scene {
         // Fenster erstellen
         this.menuWindow = this.add.container(x, y);
         const background = this.add.rectangle(0, 0, 300, 200, 0x000000, 0.8);
-        const resumeButton = this.add.text(-60, -60, 'Resume', { fontSize: '18px', fill: '#fff' }).setInteractive();
-        const restartButton = this.add.text(-60, -25, 'Restart', { fontSize: '18px', fill: '#fff' }).setInteractive();
-        const volumeLabel = this.add.text(-60, 10, 'Volume', { fontSize: '18px', fill: '#fff' });
+        const resumeButton = this.add.text(-70, -60, 'Resume', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        const restartButton = this.add.text(-70, -25, 'Restart', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        const volumeLabel = this.add.text(-70, 10, 'Volume', { fontSize: '18px', fill: '#fff' });
         this.volumeText = this.add.text(50, 10, (this.music.volume * 100).toFixed(0) + '%', { fontSize: '18px', fill: '#fff' });
 
         // Lautstärke erhöhen Button
@@ -158,7 +158,7 @@ class GameUI extends Phaser.Scene {
         });
 
         // Lautstärke verringern Button
-        const decreaseVolumeButton = this.add.text(30, 10, '-', { fontSize: '18px', fill: '#fff' }).setInteractive();
+        const decreaseVolumeButton = this.add.text(25, 10, '-', { fontSize: '18px', fill: '#fff' }).setInteractive();
         decreaseVolumeButton.on('pointerdown', () => {
             let newVolume = Phaser.Math.Clamp(this.music.volume - 0.1, 0, 1);
             this.music.setVolume(newVolume);

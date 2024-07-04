@@ -17,7 +17,9 @@ class CharacterScene extends Phaser.Scene {
         this.necromancer = null;
         this.dmg = DamageManager.getDamage();
         this.notificationText = null;
-        this.orcDeathSound = null;
+        this.soundVolume= 0.4;
+        this.damageCooldown = 1000; // Cooldown in Millisekunden
+        this.lastDamageTime = 0; 
     }
 
 
@@ -104,9 +106,9 @@ class CharacterScene extends Phaser.Scene {
         KillCounter.incrementOrcKills();
     
         this.orcDeath = this.sound.add('orcDeath');
-        this.orcDeath.play();
-        
-       
+        this.orcDeath.play({
+            volume: this.soundVolume
+        });
         
         // Emitiere Event zur Aktualisierung der Münzen
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
@@ -120,8 +122,9 @@ class CharacterScene extends Phaser.Scene {
         CoinCounter.coinText(this, orc.x, orc.y, coins);
         KillCounter.incrementOrcKills();
         this.orcDeath = this.sound.add('orcDeath');
-        this.orcDeath.play();
-
+        this.orcDeath.play({
+            volume: this.soundVolume
+        });
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
 
@@ -133,7 +136,9 @@ class CharacterScene extends Phaser.Scene {
         KillCounter.incrementOrcKills();
         CoinCounter.coinText(this, orc.x, orc.y, coins);
         this.orcDeath = this.sound.add('orcDeath');
-        this.orcDeath.play();
+        this.orcDeath.play({
+            volume: this.soundVolume
+        });
 
         sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
     }
@@ -150,6 +155,13 @@ class CharacterScene extends Phaser.Scene {
             charakter.destroy();
             this.add.text(charakter.x, charakter.y, 'Game Over!', { fontSize: '32px'}).setOrigin('0.5');
             this.add.text(charakter.x, charakter.y + 20, 'Please Restart.', { fontSize: '16px'}).setOrigin('0.5');
+            this.characterDeath = this.sound.add('characterDeath');
+            this.characterDeath.play();
+        } else {
+            this.characterHurt = this.sound.add('characterHurt');
+            this.characterHurt.play({
+                seek: 0.05
+            });
         }
     }
 
@@ -165,6 +177,8 @@ class CharacterScene extends Phaser.Scene {
             CoinCounter.addCoins(coins);
             CoinCounter.coinText(this, necromancer.x, necromancer.y, coins);
             KillCounter.incrementNecromancerKills();
+            this.bossDeath = this.sound.add('bossDeath');
+            this.bossDeath.play();
 
             sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
         } else {
@@ -172,6 +186,10 @@ class CharacterScene extends Phaser.Scene {
             let necromancerX = Phaser.Math.Between(300, 750);
             let necromancerY = Phaser.Math.Between(200, 600);
             necromancer.setPosition(necromancerX, necromancerY);
+            this.bossHit = this.sound.add('bosshit');
+            this.bossHit.play({
+                volume: 0.5
+            });
         }
     }
 
@@ -190,6 +208,8 @@ class CharacterScene extends Phaser.Scene {
             CoinCounter.addCoins(coins);
             CoinCounter.coinText(this, necromancer.x, necromancer.y, coins);
             KillCounter.incrementNecromancerKills();
+            this.bossDeath = this.sound.add('bossDeath');
+            this.bossDeath.play();
 
             sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
         } else {
@@ -197,6 +217,10 @@ class CharacterScene extends Phaser.Scene {
             let necromancerX = Phaser.Math.Between(300, 750);
             let necromancerY = Phaser.Math.Between(200, 600);
             necromancer.setPosition(necromancerX, necromancerY);
+            this.bossHit = this.sound.add('bosshit');
+            this.bossHit.play({
+                volume: 0.5
+            });
         }
     }
 
@@ -220,6 +244,8 @@ class CharacterScene extends Phaser.Scene {
 
             // Kill Counter aktualisieren
             KillCounter.incrementNecromancerKills();
+            this.bossDeath = this.sound.add('bossDeath');
+            this.bossDeath.play();
 
             // Emitiere Event zur Aktualisierung der Münzen
             sceneEvents.emit('player-coins-changed', CoinCounter.getCoins());
@@ -228,6 +254,10 @@ class CharacterScene extends Phaser.Scene {
             let necromancerX = Phaser.Math.Between(300, 750);
             let necromancerY = Phaser.Math.Between(200, 600);
             necromancer.setPosition(necromancerX, necromancerY);
+            this.bossHit = this.sound.add('bosshit');
+            this.bossHit.play({
+                volume: 0.5
+            });
         }
     }
 

@@ -104,6 +104,8 @@ class MainMap extends CharacterScene {
         sceneEvents.emit('player-health-changed', this.charakter.health);
         // Übergangszone erstellen
         this.createTransitionZone(1, 150, 1, 40, () => {
+            this.charakter.walkGrass.stop();
+            console.log('Grass entfernt')
             this.scene.start('MapWest', { charakter: this.charakter, from: 'MainMap' });
         });
 
@@ -141,6 +143,7 @@ class MainMap extends CharacterScene {
 
         this.updateCharacterAndOrcs();
     }
+
 }
 
 export default MainMap;

@@ -30,6 +30,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         this.bowShot = scene.sound.add('bowShot');
         this.dashSound = scene.sound.add('dash');
+        this.walkGrass = scene.sound.add('walkGrass');
 
         this.healthStates = {
             IDLE: 'IDLE',
@@ -49,8 +50,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
 
         // Dash Einstellungen
         this.isDashing = false; // Zustand des Dash
-        this.dashSpeed = 400; // Dash-Geschwindigkeit
-        this.dashDuration = 200; // Dauer des Dashes, 1000 = 1 sek
+        this.dashSpeed = 300; // Dash-Geschwindigkeit
+        this.dashDuration = 300; // Dauer des Dashes, 1000 = 1 sek
         this.dashCooldown = 1000; // Abklingzeit des Dashes, 1000 = 1sek
         this.lastDashTime = 0;
 
@@ -88,6 +89,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             loop: true, // Wiederhole den Sound, solange er abgespielt wird
             volume: 0.5 // Lautstärke des Sounds
         });
+        
     }
 
     toggleMap() {
@@ -113,14 +115,28 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         this.spinHitbox.setVisible(true);
         this.spinHitbox.body.enable = true;
     
-        // Starte den Sound und lasse ihn wiederholen
+        // Starte den Sound und lasse ihn 2 Mal wiederholen (insgesamt 3 Mal abspielen)
         if (this.spinSound) {
             this.spinSound.stop(); // Stoppe den Sound, wenn er schon läuft
         }
+        
         this.spinSound = this.scene.sound.add('swordSpin', {
-            loop: true, // Wiederhole den Sound, solange der Schwertwirbel aktiv ist
-            volume: 0.5 // Lautstärke des Sounds
+            volume: 0.5, // Lautstärke des Sounds
+            loop: false // Kein Endlos-Loop
         });
+    
+        // Zählvariable für die Wiederholungen
+        this.spinSoundRepeatCount = 0;
+        const maxRepeats = 20; // Anzahl der Wiederholungen (2 Wiederholungen = 3 Mal abspielen)
+    
+        // Event-Handler für das Ende des Sounds
+        this.spinSound.on('complete', () => {
+            this.spinSoundRepeatCount++;
+            if (this.spinSoundRepeatCount < maxRepeats) {
+                this.spinSound.play();
+            }
+        });
+    
         this.spinSound.play();
     
         this.scene.time.addEvent({
@@ -142,6 +158,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         // Starte die Schwertwirbel-Animation
         this.anims.play('charakter-sword-spin', true);
     }
+    
     
 
     swingSword() {
@@ -219,7 +236,9 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                     break;
             }
         }
-
+        this.dashSound.play({
+            seek: 0.06
+        });
         dashDirection.normalize();
 
         this.setVelocity(dashDirection.x * this.dashSpeed, dashDirection.y * this.dashSpeed);
@@ -228,7 +247,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.isDashing = false;
             this.setVelocity(0, 0); // Setze die Geschwindigkeit auf Null, um den Dash zu beenden
         });
-        this.dashSound.play();
+        
     }
 
     get health() {
@@ -311,7 +330,9 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
     this.canShoot = false;
     this.lastShootTime = this.scene.time.now;
 
-    this.bowShot.play();
+    this.bowShot.play({
+        
+    });
 }
 
 
@@ -372,7 +393,11 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         } else if (!this.customKeys.sword.isDown && this.swingSound.isPlaying) {
             // Stoppe den SwordSwing-Sound, wenn die E-Taste losgelassen wird
             this.swingSound.stop();
-        }else {
+        } else if (this.customKeys.bow.isDown) {
+            this.setVelocity(0, 0);
+            animKey = 'charakter-bow';
+            this.shootArrow();
+        } else {
             // Bewegung
             let moveDirection = new Phaser.Math.Vector2(0, 0);
     
@@ -414,12 +439,22 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                     this.lastDirection = 'down';
                 }
     
-            } else if (this.customKeys.bow.isDown) {
-                this.setVelocity(0, 0);
-                animKey = 'charakter-bow';
-                this.shootArrow();
+                // Spiel den walkGrass-Sound, wenn der Charakter sich bewegt und der Sound nicht bereits gespielt wird
+                if (!this.walkGrass.isPlaying) {
+                    this.walkGrass.play({ 
+                        rate: 0.8,
+                        volume: 0.45
+                     });
+                    
+                }
+    
             } else {
                 this.setVelocity(0, 0);
+    
+                // Stoppe den walkGrass-Sound, wenn der Charakter stillsteht
+                if (this.walkGrass.isPlaying) {
+                    this.walkGrass.stop();
+                }
             }
         }
     
@@ -435,6 +470,17 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.anims.play(animKey, true);
         }
     }
+
+    // Methode, um den walkGrass-Sound nach einer bestimmten Anzahl von Wiederholungen zu stoppen
+    setupWalkGrassSound() {
+        this.walkGrass.on('complete', () => {
+            this.walkGrassRepeatCount++;
+            if (this.walkGrassRepeatCount < this.maxWalkGrassRepeats) {
+                this.walkGrass.play();
+            }
+        });
+    }
+    
     
     
 }
