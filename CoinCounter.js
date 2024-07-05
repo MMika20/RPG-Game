@@ -1,4 +1,4 @@
-let coins = 0; // Startcoins
+let coins = 200000; // Startcoins
 
 export default {
     getCoins() {

@@ -24,6 +24,8 @@ class BossLevel extends CharacterScene {
     }
 
     create(data) {
+
+        
         // Initialisierungen und Kollisionen
         const map = this.make.tilemap({ key: "bossLevel", tileWidth: 64, tileHeight: 45 });
         const tileset = map.addTilesetImage("RPG_Map_Tileset", "tiles1");

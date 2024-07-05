@@ -21,6 +21,9 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
         this.sprintCooldown = 12000; // 15 Sekunden
         this.sprintSpeed = 500; // Geschwindigkeit des Sprints
 
+        this.backgroundMusic = null;
+        this.bossMusic = null;
+
         this.fireballSound = scene.sound.add('fireball');
         this.bossHit = scene.sound.add('bosshit');
         this.bossDash = scene.sound.add('bossDash');
@@ -104,7 +107,14 @@ class Necromancer extends Phaser.Physics.Arcade.Sprite {
             this.scene.time.delayedCall(5000, () => {  // Zeit nach Boss bis zur Teleportation
                 const charakter = this.scene.charakter;
                 if (charakter) {
-
+                    this.backgroundMusic = this.scene.scene.get('GameUI').music; // Hintergrundmusik aus GameUI-Szene
+                    if (this.backgroundMusic) {
+                    this.backgroundMusic.play(); // Hintergrundmusik stoppen
+                    }
+                    this.backgroundMusicBoss = this.scene.scene.get('BossLevel').bossMusic;
+                    if ( this.backgroundMusicBoss){
+                        this.backgroundMusicBoss.stop();
+                    }
                     // Zurück zur MainMap-Szene mit aktualisierten Daten
                     this.scene.scene.start('MainMap', { charakter: charakter, from: 'NecromancerBattle' });
                 }
