@@ -119,7 +119,7 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
         if (this.spinSound) {
             this.spinSound.stop(); // Stoppe den Sound, wenn er schon läuft
         }
-        
+    
         this.spinSound = this.scene.sound.add('swordSpin', {
             volume: 0.5, // Lautstärke des Sounds
             loop: false // Kein Endlos-Loop
@@ -155,11 +155,19 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             callbackScope: this
         });
     
+        // Speichere den ursprünglichen spinSpeed-Wert
+        this.originalSpinSpeed = this.spinSpeed;
+    
+        // Füge den Flip der Rotationsrichtung hinzu
+        if (this.lastDirection === 'left') {
+            this.spinSpeed = -Math.abs(this.originalSpinSpeed); // Invertiere die Rotationsrichtung
+        } else {
+            this.spinSpeed = Math.abs(this.originalSpinSpeed); // Normale Rotationsrichtung
+        }
+    
         // Starte die Schwertwirbel-Animation
         this.anims.play('charakter-sword-spin', true);
     }
-    
-    
 
     swingSword() {
         if (this.isSwingingSword || this.healthState === this.healthStates.DAMAGE) {
@@ -445,10 +453,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
                     this.walkGrass.play({ 
                         rate: 0.8,
                         volume: 0.45
-                     });
-                    
+                    });
                 }
-    
             } else {
                 this.setVelocity(0, 0);
     
@@ -465,6 +471,13 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             this.spinHitbox.body.setSize(30, 30); // Größe der Hitbox für den Wirbel
             this.spinHitbox.body.setCircle(20); // Kreisförmige Hitbox für den Wirbel
             this.rotation += this.spinSpeed; // Rotation des Charakters
+    
+            // Überprüfe die Blickrichtung und passe die Rotationsrichtung an
+            if (this.lastDirection === 'left') {
+                this.spinSpeed = -Math.abs(this.originalSpinSpeed); // Invertiere die Rotationsrichtung
+            } else {
+                this.spinSpeed = Math.abs(this.originalSpinSpeed); // Normale Rotationsrichtung
+            }
         }
     
         if (!this.isSwingingSword && !this.isSpinning) {
