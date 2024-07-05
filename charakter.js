@@ -237,7 +237,8 @@ class Charakter extends Phaser.Physics.Arcade.Sprite {
             }
         }
         this.dashSound.play({
-            seek: 0.06
+            seek: 0.06,
+            volume: 0.5
         });
         dashDirection.normalize();
 

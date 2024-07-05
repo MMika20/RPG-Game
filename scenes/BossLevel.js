@@ -19,6 +19,8 @@ class BossLevel extends CharacterScene {
         this.invulnerableTime = 1000; // Zeit in Millisekunden (1 Sekunde)
         this.lastHitTime = 0; // Zeitpunkt des letzten Treffers
     
+        this.backgroundMusic = null;
+        this.bossMusic = null;
     }
 
     create(data) {
@@ -101,6 +103,17 @@ class BossLevel extends CharacterScene {
         
 
         sceneEvents.emit('update-map-name', 'Boss');
+
+        // Musiksteuerung
+        this.backgroundMusic = this.scene.get('GameUI').music; // Hintergrundmusik aus GameUI-Szene
+        if (this.backgroundMusic) {
+            this.backgroundMusic.stop(); // Hintergrundmusik stoppen
+        }
+
+        this.bossMusic = this.sound.add('backgroundMusicBoss', { loop: true }); // Bossmusik hinzufügen
+        this.bossMusic.play({
+            volume: 0.6
+        }); // Bossmusik abspielen
     }
 
     update(time, delta) {
