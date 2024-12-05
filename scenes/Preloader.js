@@ -26,10 +26,11 @@ class Preloader extends Phaser.Scene {
         this.load.image('arrow', './assets/arrow.png');
         this.load.image('fireball', './assets/Fireball.png');
         this.load.image('swordSpin', './assets/swordSpin.png');
-        this.load.image('dash_icon', './assets/Dash.png');
-        this.load.image('sword_icon', './assets/swing.png');
-        this.load.image('bow_icon', './assets/bow.png');
-        this.load.image('spin_icon', './assets/spin.png');
+        // UI Icons
+        this.load.image('dash_icon', './assets/UI_Icon/Dash.png');
+        this.load.image('sword_icon', './assets/UI_Icon/swing.png');
+        this.load.image('bow_icon', './assets/UI_Icon/Bow.png');
+        this.load.image('spin_icon', './assets/UI_Icon/Spin.png');
         this.load.image('map_icon', './assets/MapIcon.png');
         this.load.image('map', './assets/FullMap.png');
         this.load.image('marker', './assets/marker.png');
