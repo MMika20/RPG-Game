@@ -146,7 +146,7 @@ class GameUI extends Phaser.Scene {
         const background = this.add.rectangle(0, 0, 300, 200, 0x000000, 0.8);
         const resumeButton = this.add.text(-90, -60, 'Resume', { fontSize: '18px', fill: '#fff' }).setInteractive();
         const restartButton = this.add.text(-90, -25, 'Restart', { fontSize: '18px', fill: '#fff' }).setInteractive();
-        const volumeLabel = this.add.text(-90, 10, 'Volume', { fontSize: '18px', fill: '#fff' });
+        const volumeLabel = this.add.text(-90, 10, 'Music', { fontSize: '18px', fill: '#fff' });
         this.volumeText = this.add.text(50, 10, (this.music.volume * 100).toFixed(0) + '%', { fontSize: '18px', fill: '#fff' });
 
         // Lautstärke erhöhen Button
